@@ -12,23 +12,23 @@ class WaterFlowMonitor(object):
         self.min_count = 0
         self.constant = 0.10
         # Setup GPIO
-        GPIO.setMode(GPIO.BCM)
-        GPIO.setup(self.flow_sensor_pin, GPIO.in, pull_up_down = GPIO.PUD_UP)
+        GPIO.setmode(GPIO.BCM)
+        GPIO.setup(self.flow_sensor_pin, GPIO.IN, pull_up_down = GPIO.PUD_UP)
         GPIO.add_event_detect(
                 self.flow_sensor_pin,
                 GPIO.FALLING,
                 callback=self.countPulse
                 )
 
-    def countPulse():
+    def countPulse(self, channel):
         self.total_count += 1
         self.rate_count += 1
 
-    def calcFlow():
+    def calcFlow(self):
         print('Liters/min -> ', round(self.rate_count * self.constant, 4))
         print('Total Liters -> ', round(self.total_count * self.constant, 4))
     
-    def run():
+    def run(self):
         self.timer = time.time() + 10
         print("Running WaterFlowMonitor")
         while True:
