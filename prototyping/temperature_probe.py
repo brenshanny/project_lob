@@ -17,7 +17,7 @@ class TemperatureMonitor(object):
         self.device_file = device_folder + '/w1_slave'
 
     def read_temp_raw(self):
-        f = open(selfdevice_file, 'r')
+        f = open(self.device_file, 'r')
         lines = f.readlines()
         f.close()
         return lines
@@ -36,7 +36,7 @@ class TemperatureMonitor(object):
 
     def run(self):
         while True:
-            print(read_temp())
+            print(self.read_temp())
             time.sleep(1)
 
 
