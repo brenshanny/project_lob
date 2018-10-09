@@ -17,17 +17,23 @@ class WaterFlowMonitor(object):
         GPIO.add_event_detect(
                 self.flow_sensor_pin,
                 GPIO.FALLING,
-                callback=self.countPulse
+                callback=self.count_pulse
                 )
 
-    def countPulse(self, channel):
+    def count_pulse(self, channel):
         self.total_count += 1
         self.rate_count += 1
 
-    def calcFlow(self):
+    def calc_flow(self):
         print('Liters/min -> ', round(self.rate_count * self.constant, 4))
         print('Total Liters -> ', round(self.total_count * self.constant, 4))
-    
+
+    def reset_rate_count(self):
+        self.rate_count = 0
+
+    def shut_down(self):
+        GPIO.cleanup()
+
     def run(self):
         self.timer = time.time() + 10
         print("Running WaterFlowMonitor")
@@ -35,13 +41,13 @@ class WaterFlowMonitor(object):
             try:
                 if time.time() >= self.timer:
                     self.min_count += 1
-                    self.calcFlow()
+                    self.calc_flow()
                     self.rate_count = 0
                     self.timer = time.time() + 10
                 time.sleep(1)
             except KeyboardInterrupt:
-                print 'Shutting down...'
-                GPIO.cleanup()
+                print('Shutting down...')
+                self.shut_down()
                 sys.exit()
 
 if __name__ == "__main__":
