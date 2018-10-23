@@ -27,7 +27,7 @@ class TemperatureMonitor(object):
         self.device_id = device_id
         # Find the correct folder with the device id
         self.device_folder = glob.glob('/sys/bus/w1/devices/' + '28*')[0]
-        self.device_file = device_folder + '/w1_slave'
+        self.device_file = self.device_folder + '/w1_slave'
 
     def read_temp_raw(self):
         f = open(self.device_file, 'r')

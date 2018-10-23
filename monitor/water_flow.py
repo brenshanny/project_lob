@@ -48,35 +48,38 @@ class WaterFlowMonitor(object):
     def reset_rate_count(self):
         self.rate_count = 0
 
+    def reset_timer(self, increment = 0):
+        self.timer = time.time() + increment
+
     def count_pulse(self, channel):
         self.total_count += 1
         self.rate_count += 1
 
-    def calc_flow(self):
+    def calc_flow(self, reset_timer = False):
         liters = round(self.rate_count * self.constant, 4)
         total = round(self.total_count * self.constant, 4)
         # logging here
         print('Liters/min -> ', liters)
         print('Total Liters -> ', total)
+        if reset_timer:
+            self.reset_rate_count()
+            self.reset_timer(10)
         return [liters, total]
 
     def shut_down(self):
         GPIO.cleanup()
 
     def run(self):
-        self.timer = time.time() + 10
+        self.reset_timer(10)
         # We'll want to setup logging here
         print("Running WaterFlowMonitor")
         while True:
             try:
                 if time.time() >= self.timer:
                     self.min_count += 1
-                    self.calc_flow()
-                    self.rate_count = 0
-                    self.timer = time.time() + 10
+                    self.calc_flow(True)
                 time.sleep(1)
             # Likely will need a different shut down call
             except KeyboardInterrupt:
                 print('Shutting down...')
                 self.shut_down()
-                sys.exit()
