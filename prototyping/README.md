@@ -6,7 +6,7 @@ Standalone circuits/scripts:
   - Flow Meter        - Done
   - Temperature probe - Done
   - Water Valve       -
-  - Water level       -
+  - Water level       - Done
 
 Combined Circuits:
   - Flow meter/temp probe              - done
