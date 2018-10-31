@@ -18,6 +18,7 @@ class WaterLevelMonitor(object):
         # and a way to differentiate the device for the spi.open command
         self.sensor_pin = pin
         self.setup_spi()
+        # we'll also want to setup a rolling average
 
     def setup_spi(self):
         self.spi = spidev.SpiDev()
@@ -27,7 +28,7 @@ class WaterLevelMonitor(object):
         self.spi.max_speed_hz = 1350000
 
     def read_raw(self):
-        r = spi.xfer2([1, 8 << self.sensor_pin, 0])
+        r = self.spi.xfer2([1, 8 << self.sensor_pin, 0])
         return ((r[1] & 3) << 8) + r[2]
 
     def read_level(self):
