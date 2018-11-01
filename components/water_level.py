@@ -12,6 +12,11 @@ class WaterLevelManager(object):
             for monitor in self.water_monitors
         ]
 
+    def print_levels(self):
+        for monitor in self.water_monitors:
+            print("Monitor {}, level: {}".format(
+                monitor.sensor_pin, monitor.read_level()))
+
 class WaterLevelMonitor(object):
     def __init__(self, pin):
         # We'll need the pin, the min/max readings for the desired sensor
