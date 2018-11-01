@@ -19,7 +19,7 @@ class WaterFlowManager(object):
     def print_flows(self):
         for monitor in self.water_monitors:
             print("Flow Monitor: {}".format(monitor.flow_sensor_pin))
-            print(monitor.calc_flow)
+            print(monitor.calc_flow())
 
     def reset_monitors(self):
         for monitor in self.water_monitors:

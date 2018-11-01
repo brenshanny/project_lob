@@ -22,6 +22,12 @@ class TemperatureManager(object):
             for monitor in self.temp_monitors
         ]
 
+    def print_temps(self):
+        for monitor in self.temp_monitors:
+            print("Temp monitor: {}".format(monitor.device_id))
+            [c, f] = monitor.read_temp()
+            print("C: {}, F: {}".format(c, f))
+
 class TemperatureMonitor(object):
     def __init__(self, device_id):
         self.device_id = device_id
