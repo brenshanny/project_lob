@@ -18,7 +18,7 @@ class TemperatureManager(object):
 
     def read_monitors(self):
         return [
-            {readings: monitor.read_temp(), device_id: monitor.device_id}
+            {"readings": monitor.read_temp(), "device_id": monitor.device_id}
             for monitor in self.temp_monitors
         ]
 

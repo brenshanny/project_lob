@@ -9,15 +9,21 @@ from ..components.drive_service import DriveService
 
 class HotLobMonitor(object):
     def __init__(self, config_path):
-        with open(config_path) as config:
-            self.temperature_probes = config['temperature_probes']
-            self.interval = config['read_interval']
+        with open(config_path) as config_file:
+            self.config = json.load(config_file)
+        self.temperature_probes = self.config['temperature_probes']
+        self.interval = self.config['read_interval']
         self.temperature_manager = TempManager([
             p_id for p_id in list(self.config['temperature_probes'].keys())
         ])
+        with open(os.environ[self.config["phone_numbers"]]) as phones:
+            self.phone_numbers = json.load(phones)
         self.drive_service = DriveService(
-            os.environ[config['sheet_key']],
-            os.environ[config['cred_file']]
+            os.environ[self.config['sheet_key']],
+            os.environ[self.config['cred_file']],
+            os.environ[self.config['gmail_email']],
+            os.environ[self.config['gmail_pwd']],
+            self.phone_numbers
         )
 
     def tank_from_id(self, probe_id):
@@ -40,7 +46,7 @@ class HotLobMonitor(object):
 
     def read_temps(self):
         print(time.strftime("%b %d, %Y - %H:%M", time.localtime(time.time())))
-        temps = self.temperature_manager.read_temps()
+        temps = self.temperature_manager.read_monitors()
         for temp in temps:
             tank = self.tank_from_id(temp['device_id'])
             print("Tank: {}".format(tank))

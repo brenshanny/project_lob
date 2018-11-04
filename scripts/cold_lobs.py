@@ -2,13 +2,11 @@ from ..components.temperature import TemperatureManager
 from ..components.solenoid import ValveManager
 from ..components.water_flow import WaterFlowManager
 from ..components.water_level import WaterLevelManager
-from .controller import Controller
 
 import json
 
-class ColdLobs(Controller):
+class ColdLobs(object):
     def __init__(self, config_path):
-        Controller.__init__(self)
         self.config = json.load(config_path)
         self.water_level_manager = WaterLevelManager(
             list(self.config["water_level"]["monitors"].keys())
