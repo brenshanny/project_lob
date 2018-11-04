@@ -5,7 +5,7 @@ import time
 from datetime import datetime as dt
 
 from ..components.temperature import TemperatureManager as TempManager
-from ..components.drive_service import DriveService
+from ..components.lobster_lob import LobsterLog
 
 class HotLobMonitor(object):
     def __init__(self, config_path):
@@ -18,7 +18,7 @@ class HotLobMonitor(object):
         ])
         with open(os.environ[self.config["phone_numbers"]]) as phones:
             self.phone_numbers = json.load(phones)
-        self.drive_service = DriveService(
+        self.drive_service = LobsterLog(
             os.environ[self.config['sheet_key']],
             os.environ[self.config['cred_file']],
             os.environ[self.config['gmail_email']],

@@ -2,7 +2,7 @@ import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 import smtplib
 
-class DriveService(object):
+class LobsterLog(object):
     def __init__(self, sheet_key, cred_file,
             gmail_email, gmail_pwd, phone_numbers):
         self.sh_key = sheet_key
@@ -16,15 +16,16 @@ class DriveService(object):
             "https://spreadsheets.google.com/feeds",
             "https://www.googleapis.com/auth/drive"
         ]
-        self.connect()
-
-    def connect(self):
         self.credentials = ServiceAccountCredentials.from_json_keyfile_name(
             self.cred_file,
             self.scope
         )
+        self.last_entry_timestamp = time.time()
+        self.connect()
+
+    def connect(self):
         self.connection = gspread.authorize(self.credentials)
-        self.worksheet = gc.open_by_key(self.sh_key)
+        self.worksheet = self.connection.open_by_key(self.sh_key)
         self.sheet = self.worksheet.sheet1
 
     def connect_to_gmail_server(self):
@@ -32,22 +33,42 @@ class DriveService(object):
         self.g_server.starttls()
         self.g_server.login(self.gmail_email, self.gmail_pwd)
 
+    def disconnect_from_gmail(self):
+        self.g_server.quit()
+
+    def send_multiple_texts(message, numbers):
+        self.connect_to_gmail_server()
+        for phone in numbers:
+            self.send_text_message(message, phone["number"], phone["carrier"])
+        self.disconnect_from_gmail()
+
     def send_text_message(message, number, carrier = "ATT"):
         addr = "@mms.att.net"
         if carrier == "Verizon":
             addr = "@verizon.net"
         elif carrier == "TMoblie":
             addr = "@tmomail.net"
-        self.g_server.sendmail(message, "{}{}".format(number, addr))
+        self.g_server.sendmail(
+            self.gmail_email,
+            "{}{}".format(number, addr),
+            message
+        )
 
     def get_current_row(self):
+        self.check_connection()
         if not self.sheet:
-            raise Exception("Cannot get current row without a sheet.
-            Please run the connect function to setup the worksheet"
+            raise Exception("Cannot get current row without a sheet."
+            "Please run the connect function to setup the worksheet"
         )
         return len(self.sheet.col_values(1)) + 1
 
+    def check_connection(self):
+        if self.last_entry_timestamp and (time.time() -
+                self.last_entry_timestamp > 18000):
+            self.connect()
+
     def add_entry(self, attrs, desired_row = None):
+        self.check_connection()
         try:
             current_row = desired_row or self.get_current_row()
             cells = self.sheet.range(current_row, 1, current_row, len(attrs))
@@ -55,12 +76,10 @@ class DriveService(object):
                 cells[i].value = attrs[i]
             self.sheet.update_cells(cells)
         except gspread.exceptions.APIError as e:
-            for phone in self.phone_numbers:
-                self.send_text_message(
-                    "There was an error: {}".format(e.message),
-                    phone["number"],
-                    phone["carrier"]
-                )
+            self.send_multiple_texts(
+                "There was an error: {}".format(e.message),
+                self.phone_numbers
+            )
             self.error_count += 1
             if e.status == "UNAUTHENTICATED":
                 print("Error: {}".format(e.status))
