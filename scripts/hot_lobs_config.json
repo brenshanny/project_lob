@@ -5,5 +5,7 @@
     "28-020f92455eff": { "tank": 3 },
     "28-020d92450b74": { "tank": 4 }
   },
-  "read_interval": 300
+  "read_interval": 10,
+  "sheet_key": "HOT_LOBSTER_SHEET_KEY",
+  "cred_file": "HOT_LOBSTER_CRED_FILE"
 }
