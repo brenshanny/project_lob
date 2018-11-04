@@ -5,7 +5,7 @@ import time
 from datetime import datetime as dt
 
 from ..components.temperature import TemperatureManager as TempManager
-from ..components.lobster_lob import LobsterLog
+from ..components.lobster_log import LobsterLog
 
 class HotLobMonitor(object):
     def __init__(self, config_path):

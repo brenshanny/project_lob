@@ -1,6 +1,8 @@
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 import smtplib
+import time
+import requests
 
 class LobsterLog(object):
     def __init__(self, sheet_key, cred_file,
@@ -75,7 +77,7 @@ class LobsterLog(object):
             for i, n in enumerate(cells):
                 cells[i].value = attrs[i]
             self.sheet.update_cells(cells)
-        except gspread.exceptions.APIError as e:
+        except (gspread.exceptions.APIError, requests.exceptions.ConnectionError) as e:
             self.send_multiple_texts(
                 "There was an error: {}".format(e.message),
                 self.phone_numbers
@@ -85,8 +87,9 @@ class LobsterLog(object):
                 print("Error: {}".format(e.status))
                 self.connect()
                 self.add_entry(attrs, current_row)
-            if e.code == 429:
+            elif e.code == 429:
                 print("Error: Too many requests")
                 time.sleep(1)
                 self.add_entry(attrs, current_row)
-
+            else:
+                self.connect()
