@@ -3,6 +3,7 @@ from oauth2client.service_account import ServiceAccountCredentials
 import smtplib
 import time
 import requests
+import logging
 
 class LobsterLog(object):
     def __init__(self, sheet_key, cred_file,
@@ -38,13 +39,13 @@ class LobsterLog(object):
     def disconnect_from_gmail(self):
         self.g_server.quit()
 
-    def send_multiple_texts(message, numbers):
+    def send_multiple_texts(self, message, numbers):
         self.connect_to_gmail_server()
         for phone in numbers:
             self.send_text_message(message, phone["number"], phone["carrier"])
         self.disconnect_from_gmail()
 
-    def send_text_message(message, number, carrier = "ATT"):
+    def send_text_message(self, message, number, carrier = "ATT"):
         addr = "@mms.att.net"
         if carrier == "Verizon":
             addr = "@verizon.net"
@@ -67,7 +68,11 @@ class LobsterLog(object):
     def check_connection(self):
         if self.last_entry_timestamp and (time.time() -
                 self.last_entry_timestamp > 18000):
+            print("----------------")
+            print("Reconnecting!")
+            print("----------------")
             self.connect()
+            self.last_entry_timestamp = time.time()
 
     def add_entry(self, attrs, desired_row = None):
         self.check_connection()
@@ -78,16 +83,18 @@ class LobsterLog(object):
                 cells[i].value = attrs[i]
             self.sheet.update_cells(cells)
         except (gspread.exceptions.APIError, requests.exceptions.ConnectionError) as e:
+            print(e)
+            error = getattr(e, "error", None)
             self.send_multiple_texts(
-                "There was an error: {}".format(e.message),
+                "There was an error: {}".format(getattr(error, "message", error)),
                 self.phone_numbers
             )
             self.error_count += 1
-            if e.status == "UNAUTHENTICATED":
-                print("Error: {}".format(e.status))
+            if getattr(error, "status", None) == "UNAUTHENTICATED":
+                print("Error: {}".format(error.status))
                 self.connect()
                 self.add_entry(attrs, current_row)
-            elif e.code == 429:
+            elif getattr(e, 'code', None) == 429:
                 print("Error: Too many requests")
                 time.sleep(1)
                 self.add_entry(attrs, current_row)
