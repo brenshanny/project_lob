@@ -67,7 +67,7 @@ class LobsterLog(object):
 
     def check_connection(self):
         if self.last_entry_timestamp and (time.time() -
-                self.last_entry_timestamp > 18000):
+                self.last_entry_timestamp > 1800):
             print("----------------")
             print("Reconnecting!")
             print("----------------")
@@ -78,25 +78,47 @@ class LobsterLog(object):
         self.check_connection()
         try:
             current_row = desired_row or self.get_current_row()
+            if current_row >= self.sheet.row_count:
+                self.sheet.add_rows(5000)
             cells = self.sheet.range(current_row, 1, current_row, len(attrs))
             for i, n in enumerate(cells):
                 cells[i].value = attrs[i]
             self.sheet.update_cells(cells)
         except (gspread.exceptions.APIError, requests.exceptions.ConnectionError) as e:
             print(e)
-            error = getattr(e, "error", None)
+            print(type(e))
+            if type(e) == gspread.exceptions.APIError:
+                resp = requests.models.Response()
+                resp._content = e.response.text.encode('latin-1')
+                err = resp.json()
+                code = "No Code"
+                msg = "No Message"
+                status = "No Status"
+                if u'error' in err:
+                    body = err[u'error']
+                    if u'code' in body:
+                        code = str(body[u'code'])
+                    if u'message' in body:
+                        msg = str(body[u'message'])
+                    if u'status' in body:
+                        status = str(body[u'status'])
+                if status == "UNAUTHENTICATED":
+                    self.connect()
+                    self.add_entry(attrs, current_row)
+                elif code == "429":
+                    time.sleep(1)
+                    self.add_entry(attrs, current_row)
+                else:
+                    self.conect()
+            else:
+                msg = "Unknown error"
+                code = "Unknown Code"
+                self.connect()
             self.send_multiple_texts(
-                "There was an error: {}".format(getattr(error, "message", error)),
+                "Hot Lob Error! msg -> {} code -> {}".format(
+                    msg.replace(":", ""),
+                    code
+                ),
                 self.phone_numbers
             )
             self.error_count += 1
-            if getattr(error, "status", None) == "UNAUTHENTICATED":
-                print("Error: {}".format(error.status))
-                self.connect()
-                self.add_entry(attrs, current_row)
-            elif getattr(e, 'code', None) == 429:
-                print("Error: Too many requests")
-                time.sleep(1)
-                self.add_entry(attrs, current_row)
-            else:
-                self.connect()

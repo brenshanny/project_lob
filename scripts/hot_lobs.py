@@ -50,8 +50,8 @@ class HotLobMonitor(object):
         for temp in temps:
             tank = self.tank_from_id(temp['device_id'])
             print("Tank: {}".format(tank))
-            print(temp['readings'])
-            self.update_spreadsheet(tank, temp['readings'][0])
+            print(temp['data'])
+            self.update_spreadsheet(tank, temp['data'][0])
 
     def run(self):
         self.reset_timer()

@@ -19,8 +19,8 @@ class TemperatureManager(object):
     def read_monitors(self):
         return [
             {
-                "data": monitor.read_temps(),
-                "device_id": monitor.device_id},
+                "data": monitor.read_temp(),
+                "device_id": monitor.device_id,
                 "average": monitor.get_average()
             }
             for monitor in self.temp_monitors
