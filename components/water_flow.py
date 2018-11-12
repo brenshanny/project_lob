@@ -8,36 +8,56 @@ class WaterFlowManager(object):
         # setup the water monitors for each pin
         # We'll likely want to have some dict to know which montior goes
         # to which tank
-        self.water_monitors = [WaterFlowMonitor(pin) for pin in pins]
+        self.monitors = [WaterFlowMonitor(pin) for pin in pins]
+        self.averages = {}
+        for pin in pins:
+            self.averages[pin] = []
 
     def read_monitors(self):
         return [
-            {readings: monitor.calc_flow(), pin: monitor.flow_sensor_pin}
-            for monitor in self.water_monitors
+            {
+                "data": monitor.calc_flow(),
+                "pin": monitor.pin,
+                "average": monitor.get_average()
+            }
+            for monitor in self.monitors
         ]
 
+    def print_flows(self):
+        for monitor in self.monitors:
+            print("Flow Monitor: {}".format(monitor.pin))
+            print(monitor.calc_flow())
+
     def reset_monitors(self):
-        for monitor in self.water_monitors:
+        for monitor in self.monitors:
             monitor.reset_counters()
 
 # This is the class that will handle the water flow for a single sensor
 class WaterFlowMonitor(object):
     def __init__(self, pin):
         # Set the sensor pin
-        self.flow_sensor_pin = pin
+        self.pin = pin
         # The constant is how often we are measuring the water flow
         # currently it is set to every 10 seconds
         self.constant = 0.10
         # Set the defaults
         self.reset_counters()
+        self.samples = []
         # Setup GPIO
         GPIO.setmode(GPIO.BCM)
-        GPIO.setup(self.flow_sensor_pin, GPIO.IN, pull_up_down = GPIO.PUD_UP)
+        GPIO.setup(self.pin, GPIO.IN, pull_up_down = GPIO.PUD_UP)
         GPIO.add_event_detect(
-                self.flow_sensor_pin,
+                self.pin,
                 GPIO.FALLING,
                 callback=self.count_pulse
                 )
+
+    def get_average(self):
+        return sum(self.samples) / len(self.samples)
+
+    def update_samples(self, sample):
+        self.samples.append(sample)
+        self.samples = self.samples[-10:]
 
     def reset_counters(self):
         self.total_count = 0
@@ -58,6 +78,7 @@ class WaterFlowMonitor(object):
     def calc_flow(self, reset_timer = False):
         liters = round(self.rate_count * self.constant, 4)
         total = round(self.total_count * self.constant, 4)
+        self.update_samples(liters)
         # logging here
         print('Liters/min -> ', liters)
         print('Total Liters -> ', total)

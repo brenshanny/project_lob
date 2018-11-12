@@ -11,16 +11,26 @@ import time
 
 class TemperatureManager(object):
     def __init__(self, ids):
-        # We need to setup 4 different temperature monitors here
-        # each will be coded with a specific folder to access
-        # We'll likely want to pass in the folder id's
-        self.temp_monitors = [TemperatureMonitor(id) for id in ids]
+        self.temp_monitors = [TemperatureMonitor(t_id) for t_id in ids]
+        self.averages = {}
+        for t_id in ids:
+            self.averages[t_id] = []
 
     def read_monitors(self):
         return [
-            {readings: monitor.read_temp(), device_id: monitor.device_id}
+            {
+                "data": monitor.read_temp(),
+                "device_id": monitor.device_id,
+                "average": monitor.get_average()
+            }
             for monitor in self.temp_monitors
         ]
+
+    def print_temps(self):
+        for monitor in self.temp_monitors:
+            print("Temp monitor: {}".format(monitor.device_id))
+            [c, f] = monitor.read_temp()
+            print("C: {}, F: {}".format(c, f))
 
 class TemperatureMonitor(object):
     def __init__(self, device_id):
@@ -28,6 +38,10 @@ class TemperatureMonitor(object):
         # Find the correct folder with the device id
         self.device_folder = glob.glob('/sys/bus/w1/devices/' + '28*')[0]
         self.device_file = self.device_folder + '/w1_slave'
+        self.samples= []
+
+    def get_average(self):
+        return sum(self.samples) / len(self.samples)
 
     def read_temp_raw(self):
         f = open(self.device_file, 'r')
@@ -35,8 +49,11 @@ class TemperatureMonitor(object):
         f.close()
         return lines
 
+    def update_samples(self, sample):
+        self.samples.append(sample)
+        self.samples = self.samples[-10:]
+
     def read_temp(self):
-        # is this an efficient way to read the data from multiple sources?
         lines = self.read_temp_raw()
         while lines[0].strip()[-3:] != 'YES':
             time.sleep(0.2)
@@ -46,4 +63,5 @@ class TemperatureMonitor(object):
             temp_string = lines[1][equals_pos+2:]
             temp_c = float(temp_string) / 1000.0
             temp_f = temp_c * 9.0 / 5.0 + 32.0
+            self.update_samples(temp_c)
             return temp_c, temp_f

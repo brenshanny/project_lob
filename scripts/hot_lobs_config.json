@@ -1,0 +1,13 @@
+{
+  "temperature_probes": {
+    "28-020292456264": { "tank": 1 },
+    "28-020f92457fe2": { "tank": 2 },
+    "28-020f92455eff": { "tank": 3 }
+  },
+  "read_interval": 300,
+  "sheet_key": "HOT_LOBSTER_SHEET_KEY",
+  "cred_file": "HOT_LOBSTER_CRED_FILE",
+  "phone_numbers": "PROJECT_LOB_PHONES",
+  "gmail_email": "PROJECT_LOB_GMAIL_EMAIL",
+  "gmail_pwd": "PROJECT_LOB_GMAIL_PWD"
+}

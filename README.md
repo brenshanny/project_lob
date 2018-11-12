@@ -14,8 +14,8 @@ Roadmap:
   - prototype individual circuits and scripts for each device
     - temperature probe    - done
     - water flow sensor    - done
-    - water level sensor   -
-    - solenoid valve       -
-  - combine circuits/software for tank monitoring unit
-  - deliver tank monitoring unit(s)
-  - prototype software for the tank controller
+    - water level sensor   - done
+    - solenoid valve       - done
+  - combine circuits/software for tank monitoring unit - done
+  - deliver tank monitoring unit(s) - in progress
+  - prototype software for the tank controller - in progress
