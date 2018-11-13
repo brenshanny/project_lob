@@ -6,11 +6,11 @@ from datetime import datetime
 import logging
 
 from ..components.temperature import TemperatureManager
-from ..components.lobster_log import LoggingService
+from ..components.logging_service import LoggingService
 
 class HotLobMonitor(object):
     def __init__(self, config_path):
-        self.logger = logger.getLogger('project_lob.hot_lob_monitor')
+        self.logger = logging.getLogger('project_lob.hot_lob_monitor')
         self.logger.info("Initializing Hot Lob Monitor")
         with open(config_path) as config_file:
             self.logger.info("Loading Hot Lob config @ {}".format(config_path))
