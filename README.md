@@ -1,21 +1,34 @@
-Project Lob
+Python based wet lab tank monitoring and control software
 
-Two Goals:
-  1) Development of a salt water tank monitoring system that measures:
-    - temperature
-    - water flow in/out
-    - water level
+Requirements:
+  - External Libraries:
+    - gspread - https://github.com/burnash/gspread
+    - oauth2client - https://github.com/googleapis/oauth2client
 
-  2) Development of a salt water tank controller that reads tank monitoring
-  meaurements and modulates solenoid valves to maintain desired water levels
-  accross multiple tanks
+  - Environment:
+    - HOT_LOBSTER_CRED_FILE - the credential file created when setting up gspread access
+    - HOT_LOBSTER_SHEET_KEY - the google spreadsheet key found in the url for the desired spreadsheet
+    - COLD_LOBSTER_CRED_FILE - (use if different from HOT_LOBSTER_CRED_FILE) the credential file created when setting up gspread access
+    - COLD_LOBSTER_SHEET_KEY - (use if different from HOT_LOBSTER_SHEET_KEY) the google spreadsheet key found in the url for the desired spreadsheet
+    - PROJECT_LOB_PHONES - a json file containing the phone numbers to send alerts to in the format of [{"number": "<phone_number>", "carrier": "ATT"}]
+    - PROJECT_LOB_GMAIL_EMAIL - the email address to send text messages from
+    - PROJECT_LOB_GMAIL_PWD   - the password to login with the email address above
 
-Roadmap:
-  - prototype individual circuits and scripts for each device
-    - temperature probe    - done
-    - water flow sensor    - done
-    - water level sensor   - done
-    - solenoid valve       - done
-  - combine circuits/software for tank monitoring unit - done
-  - deliver tank monitoring unit(s) - in progress
-  - prototype software for the tank controller - in progress
+  - Components:
+    - DS18B20 waterproof temperature sensor - https://www.adafruit.com/product/381
+    - water flow sensors - https://www.adafruit.com/product/828
+    - solenoid valves    - https://www.adafruit.com/product/997
+    - eTape sensor       - https://www.adafruit.com/product/3828
+    - Raspberry Pi
+
+
+To run:
+  - follow the directions at https://github.com/burnash/gspread to set up the google spreadsheets authorization
+  - ensure the environment variables above are set properly
+  - python -m project_lob.scripts.monitor <arguments>
+  - arguments:
+    - --hot-monitor (-hm) to run the hot lobster trial montoring
+    - --cold-monitor (-cm) to run the cold lobster trail monitoring
+
+  - ex: python -m project_lob.scripts.monitor -hm
+  - Output is logged to lobster_log.log at the working dir
