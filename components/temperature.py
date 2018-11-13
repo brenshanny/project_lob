@@ -8,15 +8,20 @@
 import os
 import glob
 import time
+import logging
 
 class TemperatureManager(object):
     def __init__(self, ids):
+        self.logger = logging.getLogger(
+            "project_lob.components.temperature_manager")
+        self.logger.info("Initializing Temperature Manger")
         self.temp_monitors = [TemperatureMonitor(t_id) for t_id in ids]
         self.averages = {}
         for t_id in ids:
             self.averages[t_id] = []
 
     def read_monitors(self):
+        self.logger.info("Reading temperatures")
         return [
             {
                 "data": monitor.read_temp(),
@@ -27,6 +32,7 @@ class TemperatureManager(object):
         ]
 
     def print_temps(self):
+        self.logger.info("Printing temperatures")
         for monitor in self.temp_monitors:
             print("Temp monitor: {}".format(monitor.device_id))
             [c, f] = monitor.read_temp()
@@ -34,6 +40,10 @@ class TemperatureManager(object):
 
 class TemperatureMonitor(object):
     def __init__(self, device_id):
+        self.logger = logging.getLogger(
+            "project_lob.components.temperature_monitor")
+        self.logger.info("Initializing Temperature Monitor for device: "
+                         "{}".format(device_id))
         self.device_id = device_id
         # Find the correct folder with the device id
         self.device_folder = glob.glob('/sys/bus/w1/devices/' + '28*')[0]
@@ -41,8 +51,10 @@ class TemperatureMonitor(object):
         self.samples= []
 
     def get_average(self):
-        return sum(self.samples) / len(self.samples)
-
+        avg = sum(self.samples) / len(self.samples)
+        self.logger.info("Average is {}, for device: {}".format(
+            avg, self.device_id))
+        return avg
     def read_temp_raw(self):
         f = open(self.device_file, 'r')
         lines = f.readlines()
@@ -50,10 +62,12 @@ class TemperatureMonitor(object):
         return lines
 
     def update_samples(self, sample):
+        self.logger.info("Updating Samples with temp: {}".format(sample))
         self.samples.append(sample)
         self.samples = self.samples[-10:]
 
     def read_temp(self):
+        self.logger.info("Reading temp for device: {}".format(self.device_id))
         lines = self.read_temp_raw()
         while lines[0].strip()[-3:] != 'YES':
             time.sleep(0.2)
