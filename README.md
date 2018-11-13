@@ -1,4 +1,4 @@
-Python based wet lab tank monitoring and control software
+# Python based wet lab tank monitoring and control software
 
 ## Requirements:
   - gspread - https://github.com/burnash/gspread
@@ -7,7 +7,7 @@ Python based wet lab tank monitoring and control software
 ## Setup
 [Obtain OAuth2 credentials from Google Developers Console](http://gspread.readthedocs.org/en/latest/oauth2.html)
 
-- Environment vars:
+### Environment vars:
   - HOT_LOBSTER_CRED_FILE - the credential file created when setting up gspread access
   - HOT_LOBSTER_SHEET_KEY - the google spreadsheet key found in the url for the desired spreadsheet
   - COLD_LOBSTER_CRED_FILE - use if different from HOT_LOBSTER_CRED_FILE
@@ -24,7 +24,7 @@ Python based wet lab tank monitoring and control software
   - Raspberry Pi
 
 ## To Run
-# Hot Lobster Trial Monitoring
+### Hot Lobster Trial Monitoring
 
 ```sh
 python -m project_lob.scripts.monitor -hm
@@ -36,7 +36,7 @@ or
 python -m project_lob.scripts.monitor --hot-monitor
 ```
 
-# Cold Lobster Trial Monitoring
+### Cold Lobster Trial Monitoring
 
 ```sh
 python -m project_lob.scripts.monitor -cm
@@ -48,4 +48,4 @@ or
 python -m project_lob.scripts.monitor --cold-monitor
 ```
 
-Output is logged to __lobster_log.log__ in the current working dir
+Output is logged to _lobster_log.log_ in the current working dir
