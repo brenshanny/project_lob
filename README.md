@@ -3,11 +3,9 @@
 ## Requirements:
   - gspread - https://github.com/burnash/gspread
   - oauth2client - https://github.com/googleapis/oauth2client
+  - [Obtain OAuth2 credentials from Google Developers Console](http://gspread.readthedocs.org/en/latest/oauth2.html)
 
-## Setup
-[Obtain OAuth2 credentials from Google Developers Console](http://gspread.readthedocs.org/en/latest/oauth2.html)
-
-### Environment vars:
+## Environment vars:
   - HOT_LOBSTER_CRED_FILE - the credential file created when setting up gspread access
   - HOT_LOBSTER_SHEET_KEY - the google spreadsheet key found in the url for the desired spreadsheet
   - COLD_LOBSTER_CRED_FILE - use if different from HOT_LOBSTER_CRED_FILE
