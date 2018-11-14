@@ -6,7 +6,7 @@
 import atexit
 import os
 import time
-import cPickle as pickle
+import pickle
 
 
 class EventHandler(object):

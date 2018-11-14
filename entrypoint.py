@@ -3,8 +3,8 @@ import logging
 import argparse
 import sys
 
-from ..controllers.hot_lobs import HotLobMonitor
-from ..controllers.cold_lobs import ColdLobMonitor
+from .controllers.hot_lobs import HotLobMonitor
+from .controllers.cold_lobs import ColdLobMonitor
 
 if __name__ == "__main__":
     # Check for config file
@@ -36,7 +36,7 @@ if __name__ == "__main__":
     fh = logging.FileHandler('lobster_log.log')
     fh.setLevel(logging.DEBUG)
     ch = logging.StreamHandler()
-    ch.setLevel(logging.ERROR)
+    ch.setLevel(logging.DEBUG)
     formatter = logging.Formatter(
             '%(asctime)s %(name)-12s %(levelname)-8s %(message)s')
     fh.setFormatter(formatter)
