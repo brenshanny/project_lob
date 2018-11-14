@@ -6,13 +6,8 @@
   - [Obtain OAuth2 credentials from Google Developers Console](http://gspread.readthedocs.org/en/latest/oauth2.html)
 
 ## Environment vars:
-  - HOT_LOBSTER_CRED_FILE - the credential file created when setting up gspread access
-  - HOT_LOBSTER_SHEET_KEY - the google spreadsheet key found in the url for the desired spreadsheet
-  - COLD_LOBSTER_CRED_FILE - use if different from HOT_LOBSTER_CRED_FILE
-  - COLD_LOBSTER_SHEET_KEY - use if different from HOT_LOBSTER_SHEET_KEY
-  - PROJECT_LOB_PHONES - a json file containing the phone numbers to send alerts to in the format of [{"number": "<phone_number>", "carrier": "ATT"}]
-  - PROJECT_LOB_GMAIL_EMAIL - the email address to send text messages from
-  - PROJECT_LOB_GMAIL_PWD   - the password to login with the email address above
+  - PROJECT_LOB_CONFIG - a path to the JSON config file
+    - see sample_config.json
 
 ## Components and Sensors:
   - [DS18B20 waterproof temperature sensor](https://www.adafruit.com/product/381)
@@ -25,25 +20,25 @@
 ### Hot Lobster Trial Monitoring
 
 ```sh
-python -m project_lob.scripts.monitor -hm
+python -m project_lob.entrypoint -hm
 ```
 
 or
 
 ```sh
-python -m project_lob.scripts.monitor --hot-monitor
+python -m project_lob.entrypoint --hot-monitor
 ```
 
 ### Cold Lobster Trial Monitoring
 
 ```sh
-python -m project_lob.scripts.monitor -cm
+python -m project_lob.entrypoint -cm
 ```
 
 or
 
 ```sh
-python -m project_lob.scripts.monitor --cold-monitor
+python -m project_lob.entrypoint --cold-monitor
 ```
 
 Output is logged to _lobster_log.log_ in the current working dir

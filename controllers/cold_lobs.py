@@ -13,7 +13,7 @@ class ColdLobMonitor(object):
         self.logger.info("Initializing Cold Lob Monitor")
         with open(config_path) as config_file:
             self.logger.info("Loading Cold Lob config @ {}".format(cofig_path))
-            self.config = json.load(config_path)
+            self.config = json.load(config_path)["cold_lob"]
         self.logger.info("Initializing Water Level Manager")
         self.water_level_manager = WaterLevelManager(
             list(self.config["water_level"]["monitors"].keys())
