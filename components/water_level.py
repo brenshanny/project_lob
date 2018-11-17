@@ -1,6 +1,7 @@
 #!/usr/bin/python
 
 import spidev
+import logging
 
 class WaterLevelManager(object):
     def __init__(self, monitor_config):
@@ -42,9 +43,9 @@ class WaterLevelMonitor(object):
         # We'll need the pin, the min/max readings for the desired sensor
         # and a way to differentiate the device for the spi.open command
         self.pin = pin
+        self.tank = tank
         self.setup_spi()
         self.samples = []
-        self.tank = tank
         self.min_level = min_level
         self.max_level = max_level
         self.target_level = (
@@ -76,7 +77,7 @@ class WaterLevelMonitor(object):
         self.spi.max_speed_hz = 1350000
 
     def read_raw(self):
-        r = self.spi.xfer2([1, 8 << self._pin, 0])
+        r = self.spi.xfer2([1, 8 << self.pin, 0])
         return ((r[1] & 3) << 8) + r[2]
 
     def read_level(self):

@@ -16,7 +16,7 @@ class ValveManager(object):
         ]
         self.toggle_phase = "off"
         self.valve_table = {}
-        for controller in self.valve_vontrols:
+        for controller in self.controllers:
             self.valve_table[controller.tank] = controller
 
     def update_valve_timings(self, timings):
@@ -108,9 +108,9 @@ class ValveController(object):
         GPIO.setup(self.pin, GPIO.OUT)
 
     def turn_on(self):
-        self.logger.info("Turning valve tank: {} ON".format(tank))
+        self.logger.info("Turning valve tank: {} ON".format(self.tank))
         GPIO.output(self.pin, GPIO.HIGH)
 
     def turn_off(self):
-        self.logger.info("Turning valve tank: {} OFF".format(tank))
+        self.logger.info("Turning valve tank: {} OFF".format(self.tank))
         GPIO.output(self.pin, GPIO.LOW)

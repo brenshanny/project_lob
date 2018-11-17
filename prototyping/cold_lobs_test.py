@@ -6,10 +6,30 @@ from ..components.water_level import WaterLevelManager
 import time
 
 if __name__ == "__main__":
-    water_level_pin = [0, 1, 2, 3]
-    water_flow_pins = [3, 17, 27, 22]
-    valve_pins = [14, 15, 23, 24]
-    temperature_codes = ["28-00000a299f32", "28-00000a29db61", "28-00000a2a2567", "28-00000a2ad073"]
+    water_level_pins = [
+        {"pin": 0, "tank": 0, "min": 0, "max": 10},
+        {"pin": 1, "tank": 1, "min": 0, "max": 10},
+        {"pin": 2, "tank": 2, "min": 0, "max": 10},
+        {"pin": 3, "tank": 3, "min": 0, "max": 10}
+    ]
+    water_flow_pins = [
+        {"pin": 3, "tank": 0},
+        {"pin": 17, "tank": 1},
+        {"pin": 27, "tank": 2},
+        {"pin": 22, "tank": 3}
+    ]
+    valve_pins = [
+        {"pin": 14, "tank": 0},
+        {"pin": 15, "tank": 1},
+        {"pin": 23, "tank": 2},
+        {"pin": 24, "tank": 3}
+    ]
+    temperature_codes = [
+        {"device_id": "28-00000a299f32", "tank": 0},
+        {"device_id": "28-00000a29db61", "tank": 1},
+        {"device_id": "28-00000a2a2567", "tank": 2},
+        {"device_id": "28-00000a2ad073", "tank": 3}
+    ]
 
     temperatureManager = TemperatureManager(temperature_codes)
     valveManager = ValveManager(valve_pins)
@@ -21,4 +41,4 @@ if __name__ == "__main__":
         flowManager.print_flows()
         tempManager.print_temps()
         valveManager.toggle_valves()
-        sleep(5)
+        time.sleep(5)
