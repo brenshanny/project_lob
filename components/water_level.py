@@ -3,20 +3,24 @@
 import spidev
 
 class WaterLevelManager(object):
-    def __init__(self, pins):
+    def __init__(self, monitor_config):
         self.logger = logging.getLogger(
             "project_lob.components.water_level_manager")
         self.logger.info("Initializing Water Level Manager")
-        self.monitors = [WaterLevelMonitor(pin) for pin in pins]
+        self.monitors = [
+            WaterLevelMonitor(cfg["pin"], cfg["tank"], cfg["min"], cfg["max"])
+            for cfg in monitor_config
+        ]
         self.averages = {}
-        for pin in pins:
-            self.averages[pin] = []
+        for monitor in self.monitors:
+            self.averages[monitor.tank] = []
 
-    def read_levels(self):
+    def read_monitors(self):
         self.logger.info("Reading water levels")
         return [
             {
                 "data": monitor.read_level(),
+                "tank": monitor.tank,
                 "pin": monitor.pin,
                 "average": monitor.get_average()
             }
@@ -27,34 +31,44 @@ class WaterLevelManager(object):
         self.logger.info("Printing water levels")
         for monitor in self.monitors:
             print("Monitor {}, level: {}".format(
-                monitor.pin, monitor.read_level()))
+                monitor.tank, monitor.read_level()))
 
 class WaterLevelMonitor(object):
-    def __init__(self, pin):
+    def __init__(self, pin, tank, min_level, max_level):
         self.logger = logging.getLogger(
             "project_lob.components.water_level_monitor")
         self.logger.info("Initializing Water Level Monitor for "
-                         "pin: {}".format(pin))
+                         "tank: {}".format(tank))
         # We'll need the pin, the min/max readings for the desired sensor
         # and a way to differentiate the device for the spi.open command
         self.pin = pin
         self.setup_spi()
         self.samples = []
+        self.tank = tank
+        self.min_level = min_level
+        self.max_level = max_level
+        self.target_level = (
+            self.max_level - ((self.max_level - self.min_level) / 2)
+        )
 
-    def get_average(self):
+    def get_average(self, log = false):
         avg = sum(self.samples) / len(self.samples)
-        self.logger.info("Water level average is {} for pin {}".format(
-            avg, self.pin))
+        if log:
+            self.logger.info("Water level average is {} for tank {}".format(
+                avg, self.tank))
         return avg
 
+    def target_offset(self):
+        return (self.target_level - self.get_average()) / self.target_level
+
     def update_samples(self, sample):
-        self.logger.info("Updating samples for pin: {} with level "
-                         "sample: {}".format(self.pin, sample))
+        self.logger.info("Updating samples for tank: {} with level "
+                         "sample: {}".format(self.tank, sample))
         self.samples.append(sample)
         self.samples = self.samples[-10:]
 
     def setup_spi(self):
-        self.logger.info("Setting up SPI for pin: {}".format(self.pin))
+        self.logger.info("Setting up SPI for tank: {}".format(self.tank))
         self.spi = spidev.SpiDev()
         # this is (bus, device), so we'll need to differentiate from
         # other devices here
@@ -66,7 +80,7 @@ class WaterLevelMonitor(object):
         return ((r[1] & 3) << 8) + r[2]
 
     def read_level(self):
-        self.logger.info("Reading levels for pin: {}".format(self.pin))
+        self.logger.info("Reading levels for tank: {}".format(self.tank))
         data = self.read_raw()
         # we'll probably want to incorporate the min/max here to
         # provide a water level between 0 -> 1

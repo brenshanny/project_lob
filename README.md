@@ -1,6 +1,7 @@
 # Python based wet lab tank monitoring and control software
 
 ## Requirements:
+  - python3
   - gspread - https://github.com/burnash/gspread
   - oauth2client - https://github.com/googleapis/oauth2client
   - [Obtain OAuth2 credentials from Google Developers Console](http://gspread.readthedocs.org/en/latest/oauth2.html)
@@ -20,25 +21,25 @@
 ### Hot Lobster Trial Monitoring
 
 ```sh
-python -m project_lob.entrypoint -hm
+python3 -m project_lob.entrypoint -hm
 ```
 
 or
 
 ```sh
-python -m project_lob.entrypoint --hot-monitor
+python3 -m project_lob.entrypoint --hot-monitor
 ```
 
 ### Cold Lobster Trial Monitoring
 
 ```sh
-python -m project_lob.entrypoint -cm
+python3 -m project_lob.entrypoint -cm
 ```
 
 or
 
 ```sh
-python -m project_lob.entrypoint --cold-monitor
+python3 -m project_lob.entrypoint --cold-monitor
 ```
 
 Output is logged to _lobster_log.log_ in the current working dir

@@ -19,12 +19,11 @@ class HotLobMonitor(object):
         self.event_logger = EventHandler(
             os.environ[self.config['event_logger_filename']],
             name="hot_lob_data")
-        self.temperature_probes = self.config['temperature_probes']
         self.set_interval(self.config['read_interval'])
         self.logger.info("Initializing Temperature Manger")
-        self.temperature_manager = TemperatureManager([
-            p_id for p_id in list(self.config['temperature_probes'].keys())
-        ])
+        self.temperature_manager = TemperatureManager(
+            self.config['temperature_probes']
+        )
         self.logger.info("Loading phone numbers")
         with open(os.environ[self.config["phone_numbers"]]) as phones:
             self.phone_numbers = json.load(phones)
@@ -36,9 +35,6 @@ class HotLobMonitor(object):
             os.environ[self.config['gmail_pwd']],
             self.phone_numbers
         )
-
-    def tank_from_id(self, probe_id):
-        return self.temperature_probes[probe_id]['tank']
 
     def reset_timer(self):
         self.logger.info("Resetting timer!")
@@ -67,7 +63,7 @@ class HotLobMonitor(object):
         self.logger.info("Reading temps")
         data = [
             {
-                "tank": self.tank_from_id(temp['device_id']),
+                "tank": temp['tank'],
                  "temp": temp['data'][0]
             } for temp in self.temperature_manager.read_monitors()
         ]
