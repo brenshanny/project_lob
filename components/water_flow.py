@@ -68,7 +68,7 @@ class WaterFlowMonitor(object):
                 callback=self.count_pulse
                 )
 
-    def get_average(self, log = false):
+    def get_average(self, log = False):
         avg = sum(self.samples) / len(self.samples)
         if log:
             self.logger.info("Water flow average is {} for pin: {}".format(

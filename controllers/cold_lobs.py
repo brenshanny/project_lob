@@ -51,7 +51,7 @@ class ColdLobMonitor(object):
         }
         for monitor in self.level_manager.monitors:
             self.tank_table[str(monitor.tank)]["level_monitor"] = monitor
-        for monitor in self.flow_manager.monitors::
+        for monitor in self.flow_manager.monitors:
             self.tank_table[str(monitor.tank)]["flow_monitor"] = monitor
         for monitor in self.temp_manager.monitors:
             self.tank_table[str(monitor.tank)]["temp_monitor"] = monitor
@@ -101,10 +101,13 @@ class ColdLobMonitor(object):
             level_offset = tank["level_monitor"].target_offset()
             flow_offset = tank["flow_monitor"].target_offset()
             if abs(level_offset) >= 0.1:
+                pass
                 # determine flow target
             elif abs(flow_offset) >= .05:
+                pass
                 # determine flow target
             else:
+                pass
                 # dont do anything? maybe
         # for each tank pair (level/flow)
             # take the difference between target level and current level

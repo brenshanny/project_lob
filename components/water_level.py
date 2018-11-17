@@ -51,7 +51,7 @@ class WaterLevelMonitor(object):
             self.max_level - ((self.max_level - self.min_level) / 2)
         )
 
-    def get_average(self, log = false):
+    def get_average(self, log = False):
         avg = sum(self.samples) / len(self.samples)
         if log:
             self.logger.info("Water level average is {} for tank {}".format(

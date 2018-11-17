@@ -15,7 +15,7 @@ class TemperatureManager(object):
         self.logger = logging.getLogger(
             "project_lob.components.temperature_manager")
         self.logger.info("Initializing Temperature Manger")
-        self.temp_monitors = [
+        self.monitors = [
             TemperatureMonitor(cfg["device_id"], cfg["tank"]) for cfg in config
         ]
         self.averages = {}
@@ -31,12 +31,12 @@ class TemperatureManager(object):
                 "tank": monitor.tank,
                 "average": monitor.get_average()
             }
-            for monitor in self.temp_monitors
+            for monitor in self.monitors
         ]
 
     def print_temps(self):
         self.logger.info("Printing temperatures")
-        for monitor in self.temp_monitors:
+        for monitor in self.monitors:
             print("Temp monitor: {}".format(monitor.tank))
             [c, f] = monitor.read_temp()
             print("C: {}, F: {}".format(c, f))
