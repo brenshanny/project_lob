@@ -59,11 +59,15 @@ class TemperatureMonitor(object):
         self.logger.info("Average temp is {}, for tank: {}".format(
             avg, self.tank))
         return avg
+
     def read_temp_raw(self):
         f = open(self.device_file, 'r')
         lines = f.readlines()
         f.close()
         return lines
+
+    def last_sample(self):
+        return self.samples[-1]
 
     def update_samples(self, sample):
         self.logger.info("Updating Samples with temp: {}".format(sample))

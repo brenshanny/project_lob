@@ -1,23 +1,25 @@
 {
   "cold_lob": {
     "water_level": {
+      "min_threshold": 1.10,
+      "max_threshold": 1,
       "monitors": [
         {
           "tank": 4,
-          "max": 1000,
-          "min": 400,
+          "max": 1300,
+          "min": 630,
           "pin": 0
         },
         {
           "tank": 5,
-          "max": 1000,
-          "min": 400,
+          "max": 1300,
+          "min": 570,
           "pin": 1
         },
         {
           "tank": 6,
-          "max": 1000,
-          "min": 400,
+          "max": 1300,
+          "min": 625,
           "pin": 2
         },
         {

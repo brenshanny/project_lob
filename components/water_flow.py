@@ -5,7 +5,7 @@ import time, sys
 import logging
 
 class WaterFlowManager(object):
-    def __init__(self, config):
+    def __init__(self, config, update_interval):
         # setup the water monitors for each pin
         # We'll likely want to have some dict to know which montior goes
         # to which tank
@@ -13,7 +13,8 @@ class WaterFlowManager(object):
             "project_lob.components.water_flow_manager")
         self.logger.info("Initializing Water Flow Manager")
         self.monitors = [
-            WaterFlowMonitor(cfg["pin"], cfg["tank"]) for cfg in config
+            WaterFlowMonitor(cfg["pin"], cfg["tank"], update_interval)
+            for cfg in config
         ]
         self.averages = {}
         for monitor in self.monitors:
@@ -44,7 +45,7 @@ class WaterFlowManager(object):
 
 # This is the class that will handle the water flow for a single sensor
 class WaterFlowMonitor(object):
-    def __init__(self, pin, tank):
+    def __init__(self, pin, tank, update_interval):
         self.logger = logging.getLogger(
             "project_lob.components.water_flow_monitor")
         self.logger.info("Initializing Water Flow Monitor for tank: "
@@ -53,11 +54,11 @@ class WaterFlowMonitor(object):
         self.pin = pin
         self.tank = tank
         # The constant is how often we are measuring the water flow
-        # currently it is set to every 10 seconds
-        self.constant = 0.10
+        self.constant = update_interval / 100.00
         # Set the defaults
         self.reset_counters()
         self.samples = []
+        self.avg_samples = []
         self.target_flow = None
         # Setup GPIO
         GPIO.setmode(GPIO.BCM)
@@ -75,6 +76,12 @@ class WaterFlowMonitor(object):
                 avg, self.pin))
         return avg
 
+    def last_sample(self):
+        return self.samples[-1]
+
+    def last_average(self):
+        return self.avg_samples[-1]
+
     def target_offset(self):
         if not self.target_flow:
             return 0
@@ -89,6 +96,8 @@ class WaterFlowMonitor(object):
                          "flow: {}".format(self.tank, sample))
         self.samples.append(sample)
         self.samples = self.samples[-10:]
+        self.avg_amples.append(self.get_average())
+        self.avg_samples = self.avg_samples[-10:]
 
     def reset_counters(self):
         self.logger.info("Resetting counters for tank {}".format(self.tank))

@@ -49,6 +49,9 @@ class LoggingService(object):
         self.logger.info("Disconnecting from email server")
         self.g_server.quit()
 
+    def notify_all(self, message):
+        self.send_multiple_texts(message, self.phone_numbers)
+
     def send_multiple_texts(self, message, numbers):
         self.logger.info("Sending texts")
         self.connect_to_gmail_server()

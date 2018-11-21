@@ -42,6 +42,12 @@ class ValveManager(object):
                 self.valve_table[tank], timing["on"], timing["off"]
             )
 
+    def get_thread_by_tank_id(self, tank):
+        if tank in self.threads:
+            return self.threads[tank]
+        else:
+            return None
+
     def toggle_valves(self):
         if self.toggle_phase == "off":
             self.logger.info("Toggling valves on")

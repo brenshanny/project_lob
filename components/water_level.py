@@ -4,12 +4,14 @@ import spidev
 import logging
 
 class WaterLevelManager(object):
-    def __init__(self, monitor_config):
+    def __init__(self, monitor_config, min_threshold, max_threshold):
         self.logger = logging.getLogger(
             "project_lob.components.water_level_manager")
         self.logger.info("Initializing Water Level Manager")
         self.monitors = [
-            WaterLevelMonitor(cfg["pin"], cfg["tank"], cfg["min"], cfg["max"])
+            WaterLevelMonitor(
+                cfg["pin"], cfg["tank"], cfg["min"],
+                cfg["max"], min_threshold, max_threshold)
             for cfg in monitor_config
         ]
         self.averages = {}
@@ -35,7 +37,7 @@ class WaterLevelManager(object):
                 monitor.tank, monitor.read_level()))
 
 class WaterLevelMonitor(object):
-    def __init__(self, pin, tank, min_level, max_level):
+    def __init__(self, pin, tank, min_level, max_level, min_thresh, max_thresh):
         self.logger = logging.getLogger(
             "project_lob.components.water_level_monitor")
         self.logger.info("Initializing Water Level Monitor for "
@@ -46,27 +48,59 @@ class WaterLevelMonitor(object):
         self.tank = tank
         self.setup_spi()
         self.samples = []
+        self.avg_samples = []
         self.min_level = min_level
         self.max_level = max_level
+        self.min_thresh = self.min_level * min_thresh
+        self.max_thresh = self.max_level * max_thresh
         self.target_level = (
             self.max_level - ((self.max_level - self.min_level) / 2)
         )
 
     def get_average(self, log = False):
+        if not (len(self.samples) > 0):
+            self.read_level()
         avg = sum(self.samples) / len(self.samples)
         if log:
             self.logger.info("Water level average is {} for tank {}".format(
                 avg, self.tank))
         return avg
 
+    def check_alert(self):
+        last_sample = self.last_sample()
+        if last_sample <= self.min_thresh:
+            return ("Low water warning for tank {}! Level is currently {}, "
+                    "minimum level is {}".format(
+                        self.tank, last_sample, self.min_level))
+        elif last_sample >= self.max_thresh:
+            return ("High water warning for tank {}! Level is currently {}, "
+                    "max level is {}".format(
+                        self.tank, last_sample, self.max_level))
+        else:
+            return False
+
+    def level_direction(self):
+        return self.samples[0] - self.samples[-1]
+
+    def last_sample(self):
+        return self.samples[-1]
+
+    def last_average(self):
+        return self.avg_samples[-1]
+
+    def raw_offset(self):
+        return (self.get_average() - self.target_level())
+
     def target_offset(self):
-        return (self.target_level - self.get_average()) / self.target_level
+        return (self.raw_offset() / (self.target_level - self.min_level))
 
     def update_samples(self, sample):
         self.logger.info("Updating samples for tank: {} with level "
                          "sample: {}".format(self.tank, sample))
         self.samples.append(sample)
         self.samples = self.samples[-10:]
+        self.avg_samples.append(self.get_average())
+        self.avg_samples = self.avg_samples[-10:]
 
     def setup_spi(self):
         self.logger.info("Setting up SPI for tank: {}".format(self.tank))
