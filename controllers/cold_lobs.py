@@ -8,6 +8,7 @@ import logging
 import os
 import json
 import time
+import sys
 from datetime import datetime
 
 class ColdLobMonitor(object):
@@ -85,7 +86,7 @@ class ColdLobMonitor(object):
     def update_temp_reading(self):
         self.logger.info("Collecting temp readings")
         self.event_logger.add_event({
-            "temperature_check": self.temperature_manager.read_monitors()
+            "temperature_check": self.temp_manager.read_monitors()
         })
 
     def update_delay_bool(self):
@@ -95,8 +96,8 @@ class ColdLobMonitor(object):
     def collect_data(self):
         self.logger.info("Collecting data...")
         self.update_flow_reading()
-        self.uddate_level_reading()
-        self.update_temperature_reading()
+        self.update_level_reading()
+        self.update_temp_reading()
         self.logger.info("Successfully collected data...")
 
     def log_data_to_services(self):
@@ -111,7 +112,7 @@ class ColdLobMonitor(object):
                 in tank else None)
             flow = (tank["flow_monitor"].last_sample() if "flow_monitor"
                 in tank else None)
-            level = (tank["level_monitor"].last_sample() if "level_monitor"I
+            level = (tank["level_monitor"].last_sample() if "level_monitor"
                 in tank else None)
             norm_level = tank["level_monitor"].target_offset() if level else None
             min_level = tank["level_monitor"].min_level if level else None
@@ -158,7 +159,7 @@ class ColdLobMonitor(object):
                 # the level is high and its trending up
                 # we want to slow down the flow into the tank
                 tank["level_lock"] = level
-                tank["target_flow"] = 
+                # tank["target_flow"] = 
                 pass
             elif level_offset < -0.1 and level_trend < 0:
                 # the level is low and its trending down
@@ -171,6 +172,7 @@ class ColdLobMonitor(object):
         else:
             if abs(level - tank["level_lock"]) >= (tank["level_lock"] * 0.1):
                 # the tank is draining/filling quickly so we should update the flow now
+                pass
             elif abs(flow - tank["target_flow"]) <= (tank["target_flow"] * 0.05):
                 # the flow is close to the target flow, we should reset the locks/targets
                 # and redo this method
@@ -203,6 +205,7 @@ class ColdLobMonitor(object):
 
     def run(self):
         self.logger.info("Running Cold Lob Monitor")
+        self.reset_timer()
         while True:
             try:
                 if time.time() >= self.timer:

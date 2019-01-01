@@ -92,7 +92,7 @@ class WaterFlowMonitor(object):
         self.target_flow = target
 
     def update_samples(self, sample):
-        self.logger.info("Updating samples for tank: {} with sample "
+        self.logger.info("Updating samples for tank: {} with "
                          "flow: {}".format(self.tank, sample))
         self.samples.append(sample)
         self.samples = self.samples[-10:]
