@@ -5,7 +5,7 @@ import time
 from datetime import datetime
 import logging
 
-from ..components.temperature import TemperatureManager
+from ..components.temperature.temperature_manager import TemperatureManager
 from ..components.logging_service import LoggingService
 from ..utils.eventlogger import EventHandler
 

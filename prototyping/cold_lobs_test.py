@@ -1,7 +1,7 @@
-from ..components.temperature import TemperatureManager
-from ..components.solenoid import ValveManager
-from ..components.water_flow import WaterFlowManager
-from ..components.water_level import WaterLevelManager
+from ..components.temperature.temperature_manager import TemperatureManager
+from ..components.valves.vales_manager import ValveManager
+from ..components.water_flow.water_flow_manager import WaterFlowManager
+from ..components.water_level.water_level_manager import WaterLevelManager
 
 import time
 
