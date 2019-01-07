@@ -58,7 +58,7 @@
     },
     "read_interval": 60,
     "initial_delay": 600,
-    "sheet_key": "HOT_LOBSTER_SHEET_KEY",
+    "sheet_key": "COLD_LOBSTER_SHEET_KEY",
     "cred_file": "HOT_LOBSTER_CRED_FILE",
     "phone_numbers": "PROJECT_LOB_PHONES",
     "gmail_email": "PROJECT_LOB_GMAIL_EMAIL",

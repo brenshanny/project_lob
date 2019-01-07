@@ -53,11 +53,11 @@ class WaterFlowMonitor(object):
         self.target_flow = target
 
     def update_samples(self, sample):
-        self.logger.info("Updating samples for tank: {} with sample "
+        self.logger.info("Updating samples for tank: {} with "
                          "flow: {}".format(self.tank, sample))
         self.samples.append(sample)
         self.samples = self.samples[-10:]
-        self.avg_amples.append(self.get_average())
+        self.avg_samples.append(self.get_average())
         self.avg_samples = self.avg_samples[-10:]
 
     def reset_counters(self):

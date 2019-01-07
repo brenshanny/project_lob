@@ -56,7 +56,7 @@ class WaterLevelMonitor(object):
         return self.avg_samples[-1]
 
     def raw_offset(self):
-        return (self.get_average() - self.target_level())
+        return (self.get_average() - self.target_level)
 
     def target_offset(self):
         return (self.raw_offset() / (self.target_level - self.min_level))
@@ -86,6 +86,6 @@ class WaterLevelMonitor(object):
         data = self.read_raw()
         # we'll probably want to incorporate the min/max here to
         # provide a water level between 0 -> 1
-        level = round(((data * 3300) / 1024), 0)
+        level = round(((data * 3280) / 1024), 0)
         self.update_samples(level)
         return level

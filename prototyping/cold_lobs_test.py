@@ -31,14 +31,14 @@ if __name__ == "__main__":
         {"device_id": "28-00000a2ad073", "tank": 3}
     ]
 
-    temperatureManager = TemperatureManager(temperature_codes)
+    tempManager = TemperatureManager(temperature_codes)
     valveManager = ValveManager(valve_pins)
-    flowManager = WaterFlowManager(water_flow_pins)
-    levelManager = WaterLevelManager(water_level_pins)
+    flowManager = WaterFlowManager(water_flow_pins, 5)
+    levelManager = WaterLevelManager(water_level_pins, 1.1., .9)
     while True:
         print("----------------------")
         levelManager.print_levels()
         flowManager.print_flows()
         tempManager.print_temps()
-        valveManager.toggle_valves()
+        # valveManager.toggle_valves()
         time.sleep(5)
