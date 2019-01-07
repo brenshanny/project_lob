@@ -1,4 +1,4 @@
 from . import components
-from . import scripts
+from . import entrypoint
 
-__all__ = ['components', 'scripts']
+__all__ = ['components', 'entrypoint']

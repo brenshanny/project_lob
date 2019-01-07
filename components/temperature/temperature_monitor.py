@@ -5,46 +5,19 @@
 # https://learn.adafruit.com/
 # adafruits-raspberry-pi-lesson-11-ds18b20-temperature-sensing/software
 
-import os
+
 import glob
 import time
 import logging
 
-class TemperatureManager(object):
-    def __init__(self, ids):
-        self.logger = logging.getLogger(
-            "project_lob.components.temperature_manager")
-        self.logger.info("Initializing Temperature Manger")
-        self.temp_monitors = [TemperatureMonitor(t_id) for t_id in ids]
-        self.averages = {}
-        for t_id in ids:
-            self.averages[t_id] = []
-
-    def read_monitors(self):
-        self.logger.info("Reading temperatures")
-        return [
-            {
-                "data": monitor.read_temp(),
-                "device_id": monitor.device_id,
-                "average": monitor.get_average()
-            }
-            for monitor in self.temp_monitors
-        ]
-
-    def print_temps(self):
-        self.logger.info("Printing temperatures")
-        for monitor in self.temp_monitors:
-            print("Temp monitor: {}".format(monitor.device_id))
-            [c, f] = monitor.read_temp()
-            print("C: {}, F: {}".format(c, f))
-
 class TemperatureMonitor(object):
-    def __init__(self, device_id):
+    def __init__(self, device_id, tank):
         self.logger = logging.getLogger(
             "project_lob.components.temperature_monitor")
         self.logger.info("Initializing Temperature Monitor for device: "
-                         "{}".format(device_id))
+                         "{}".format(tank))
         self.device_id = device_id
+        self.tank = tank
         # Find the correct folder with the device id
         self.device_folder = glob.glob('/sys/bus/w1/devices/' + '28*')[0]
         self.device_file = self.device_folder + '/w1_slave'
@@ -52,14 +25,18 @@ class TemperatureMonitor(object):
 
     def get_average(self):
         avg = sum(self.samples) / len(self.samples)
-        self.logger.info("Average is {}, for device: {}".format(
-            avg, self.device_id))
+        self.logger.info("Average temp is {}, for tank: {}".format(
+            avg, self.tank))
         return avg
+
     def read_temp_raw(self):
         f = open(self.device_file, 'r')
         lines = f.readlines()
         f.close()
         return lines
+
+    def last_sample(self):
+        return self.samples[-1]
 
     def update_samples(self, sample):
         self.logger.info("Updating Samples with temp: {}".format(sample))
@@ -67,7 +44,7 @@ class TemperatureMonitor(object):
         self.samples = self.samples[-10:]
 
     def read_temp(self):
-        self.logger.info("Reading temp for device: {}".format(self.device_id))
+        self.logger.info("Reading temp for tank: {}".format(self.tank))
         lines = self.read_temp_raw()
         while lines[0].strip()[-3:] != 'YES':
             time.sleep(0.2)

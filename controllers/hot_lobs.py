@@ -5,8 +5,9 @@ import time
 from datetime import datetime
 import logging
 
-from ..components.temperature import TemperatureManager
+from ..components.temperature.temperature_manager import TemperatureManager
 from ..components.logging_service import LoggingService
+from ..utils.eventlogger import EventHandler
 
 class HotLobMonitor(object):
     def __init__(self, config_path):
@@ -14,13 +15,15 @@ class HotLobMonitor(object):
         self.logger.info("Initializing Hot Lob Monitor")
         with open(config_path) as config_file:
             self.logger.info("Loading Hot Lob config @ {}".format(config_path))
-            self.config = json.load(config_file)
-        self.temperature_probes = self.config['temperature_probes']
+            self.config = json.load(config_file)["hot_lob"]
+        self.event_logger = EventHandler(
+            os.environ[self.config['event_logger_filename']],
+            name="hot_lob_data")
         self.set_interval(self.config['read_interval'])
         self.logger.info("Initializing Temperature Manger")
-        self.temperature_manager = TemperatureManager([
-            p_id for p_id in list(self.config['temperature_probes'].keys())
-        ])
+        self.temperature_manager = TemperatureManager(
+            self.config['temperature_probes']
+        )
         self.logger.info("Loading phone numbers")
         with open(os.environ[self.config["phone_numbers"]]) as phones:
             self.phone_numbers = json.load(phones)
@@ -33,9 +36,6 @@ class HotLobMonitor(object):
             self.phone_numbers
         )
 
-    def tank_from_id(self, probe_id):
-        return self.temperature_probes[probe_id]['tank']
-
     def reset_timer(self):
         self.logger.info("Resetting timer!")
         self.timer = time.time() + self.interval
@@ -45,10 +45,10 @@ class HotLobMonitor(object):
         self.interval = val
 
     def update_spreadsheet(self, tank, temp):
+        today = datetime.today()
         self.logger.info(
             "Updating spreadsheet for tank {}, with temp {}".format(
                 tank, temp))
-        today = datetime.today()
         self.logging_service.add_entry([
             "{}/{}/{}".format(today.month, today.day, today.year),
             "{}:{}:{}".format(today.hour, today.minute, today.second),
@@ -61,11 +61,17 @@ class HotLobMonitor(object):
 
     def read_temps(self):
         self.logger.info("Reading temps")
-        temps = self.temperature_manager.read_monitors()
-        for temp in temps:
-            tank = self.tank_from_id(temp['device_id'])
-            self.logger.debug("Tank: {}, temp: {}".format(tank, temp['data']))
-            self.update_spreadsheet(tank, temp['data'][0])
+        data = [
+            {
+                "tank": temp['tank'],
+                 "temp": temp['data'][0]
+            } for temp in self.temperature_manager.read_monitors()
+        ]
+        self.event_logger.add_event({ "temperature_check": data })
+        for d in data:
+            self.logger.debug("Tank: {}, temp: {}".format(
+                d['tank'], d['temp']))
+            self.update_spreadsheet(d['tank'], d['temp'])
 
     def run(self):
         self.logger.info("Running Hot Lob Monitor")

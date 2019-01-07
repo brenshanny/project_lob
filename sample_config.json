@@ -1,0 +1,82 @@
+{
+  "cold_lob": {
+    "water_level": {
+      "min_threshold": 1.10,
+      "max_threshold": 1,
+      "monitors": [
+        {
+          "tank": 4,
+          "max": 1300,
+          "min": 630,
+          "pin": 0
+        },
+        {
+          "tank": 5,
+          "max": 1300,
+          "min": 570,
+          "pin": 1
+        },
+        {
+          "tank": 6,
+          "max": 1300,
+          "min": 625,
+          "pin": 2
+        },
+        {
+          "tank": 7,
+          "max": 1000,
+          "min": 400,
+          "pin": 3
+        }
+      ]
+    },
+    "water_flow": {
+      "max": 60,
+      "min": 0,
+      "meters": [
+        { "tank": 4, "pin": 3 },
+        { "tank": 5, "pin": 17 },
+        { "tank": 6, "pin": 27 },
+        { "tank": 7, "pin": 22 }
+      ]
+    },
+    "valves": [
+      { "tank": 4, "pin": 14 },
+      { "tank": 5, "pin": 15 },
+      { "tank": 6, "pin": 23 },
+      { "tank": 7, "pin": 24 }
+    ],
+    "temperature": {
+      "max": 20,
+      "min": 6,
+      "probes": [
+        { "device_id": "28-00000a299f32", "tank": 4 },
+        { "device_id": "28-00000a29db61", "tank": 5 },
+        { "device_id": "28-00000a2a2567", "tank": 6 },
+        { "device_id": "28-00000a2ad073", "tank": 7 }
+      ]
+    },
+    "read_interval": 60,
+    "initial_delay": 600,
+    "sheet_key": "HOT_LOBSTER_SHEET_KEY",
+    "cred_file": "HOT_LOBSTER_CRED_FILE",
+    "phone_numbers": "PROJECT_LOB_PHONES",
+    "gmail_email": "PROJECT_LOB_GMAIL_EMAIL",
+    "gmail_pwd": "PROJECT_LOB_GMAIL_PWD",
+    "event_logger_filename": "COLD_LOB_EVENTLOGGER_FILENAME"
+  },
+  "hot_lob": {
+    "temperature_probes": [
+      { "device_id": "28-020292456264", "tank": 1 },
+      { "device_id": "28-020f92457fe2", "tank": 2 },
+      { "device_id": "28-020f92455eff", "tank": 3 }
+    ],
+    "read_interval": 300,
+    "sheet_key": "HOT_LOBSTER_SHEET_KEY",
+    "cred_file": "HOT_LOBSTER_CRED_FILE",
+    "phone_numbers": "PROJECT_LOB_PHONES",
+    "gmail_email": "PROJECT_LOB_GMAIL_EMAIL",
+    "gmail_pwd": "PROJECT_LOB_GMAIL_PWD",
+    "event_logger_filename": "HOT_LOB_EVENTLOGGER_FILENAME"
+  }
+}

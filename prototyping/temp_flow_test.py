@@ -3,8 +3,8 @@ import glob
 import time
 import sys
 
-from water_flow import WaterFlowMonitor
-from temperature_probe import TemperatureMonitor
+from ..components.water_flow.water_flow_monitor import WaterFlowMonitor
+from ..components.temperature.temperature_monitor import TemperatureMonitor
 
 # Create monitor instances
 FlowMonitor = WaterFlowMonitor()

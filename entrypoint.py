@@ -3,27 +3,18 @@ import logging
 import argparse
 import sys
 
-from ..controllers.hot_lobs import HotLobMonitor
-from ..controllers.cold_lobs import ColdLobMonitor
+from .controllers.hot_lobs import HotLobMonitor
+from .controllers.cold_lobs import ColdLobMonitor
 
 if __name__ == "__main__":
-    logger = logging.getLogger('project_lob')
-    logger.setLevel(logging.DEBUG)
+    # Check for config file
+    if "PROJECT_LOB_CONFIG" not in os.environ:
+        print("PROJECT_LOB_CONFIG must be an environment variable set to "
+              "the path of a JSON config file.")
+        sys.exit()
+    config_path = os.environ["PROJECT_LOB_CONFIG"]
 
-    fh = logging.FileHandler('lobster_log.log')
-    fh.setLevel(logging.DEBUG)
-
-    ch = logging.StreamHandler()
-    ch.setLevel(logging.ERROR)
-
-    formatter = logging.Formatter(
-            '%(asctime)s %(name)-12s %(levelname)-8s %(message)s')
-    fh.setFormatter(formatter)
-    ch.setFormatter(formatter)
-
-    logger.addHandler(fh)
-    logger.addHandler(ch)
-
+    # Parse arguments
     parser = argparse.ArgumentParser()
     parser.add_argument("-hm", "--hot-monitor", help="Run the hot lob monitor",
                          action="store_true")
@@ -38,14 +29,26 @@ if __name__ == "__main__":
         print("Cannot run both hot and cold monitoring programs."
               " Please specify one")
         sys.exit()
+
+    # Setup logging
+    logger = logging.getLogger('project_lob')
+    logger.setLevel(logging.DEBUG)
+    fh = logging.FileHandler('lobster_log.log')
+    fh.setLevel(logging.DEBUG)
+    ch = logging.StreamHandler()
+    ch.setLevel(logging.DEBUG)
+    formatter = logging.Formatter(
+            '%(asctime)s %(name)-12s %(levelname)-8s %(message)s')
+    fh.setFormatter(formatter)
+    ch.setFormatter(formatter)
+    logger.addHandler(fh)
+    logger.addHandler(ch)
+
+    # Run monitor
     if args.hot_monitor:
         logger.info("Creating hot lob monitor!")
-        config_path = os.path.join(os.path.dirname(os.path.realpath(__file__)),
-                                   'hot_lobs_config.json')
         monitor = HotLobMonitor(config_path)
     if args.cold_monitor:
         logger.info("Creating cold lob monitor!")
-        config_path = os.path.join(os.path.dirname(os.path.realpath(__file__)),
-                                   'cold_lobs_config.json')
         monitor = ColdLobMonitor(config_path)
     monitor.run()

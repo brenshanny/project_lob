@@ -6,9 +6,9 @@
 #     water level sensor: MCP3008 pin 0
 import time, os
 
-from temperature import TemperatureMonitor
-from water_flow import WaterFlowMonitor
-from water_level import WaterLevelMonitor
+from .temperature.temperature_monitor import TemperatureMonitor
+from .water_flow.water_flow_monitor import WaterFlowMonitor
+from .water_level.water_level_monitor import WaterLevelMonitor
 
 if __name__ == "__main__":
     temp = TemperatureMonitor(2)
