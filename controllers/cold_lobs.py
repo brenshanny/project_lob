@@ -2,6 +2,7 @@ from ..components.temperature.temperature_manager import TemperatureManager
 from ..components.valves.valve_manager import ValveManager
 from ..components.water_flow.water_flow_manager import WaterFlowManager
 from ..components.water_level.water_level_manager import WaterLevelManager
+from ..components.logging_service import LoggingService
 from ..utils.eventlogger import EventHandler
 
 import logging
@@ -42,6 +43,15 @@ class ColdLobMonitor(object):
         self.logger.info("Initializing Temperature Manager")
         self.temp_manager = TemperatureManager(
             list(self.config["temperature"]["probes"])
+        )
+        with open(os.environ[self.config["phone_numbers"]]) as phones:
+            self.phone_numbers = json.load(phones)
+        self.logging_service = LoggingService(
+            os.environ[self.config["sheet_key"]],
+            os.environ[self.config["cred_file"]],
+            os.environ[self.config["gmail_email"]],
+            os.environ[self.config["gmail_pwd"]],
+            self.phone_numbers,
         )
         # create a lookup table by tank
         self.create_tank_lookup_dict()
@@ -85,7 +95,7 @@ class ColdLobMonitor(object):
     def update_temp_reading(self):
         self.logger.info("Collecting temp readings")
         self.event_logger.add_event({
-            "temperature_check": self.temperature_manager.read_monitors()
+            "temperature_check": self.temp_manager.read_monitors()
         })
 
     def update_delay_bool(self):
@@ -96,7 +106,7 @@ class ColdLobMonitor(object):
         self.logger.info("Collecting data...")
         self.update_flow_reading()
         self.uddate_level_reading()
-        self.update_temperature_reading()
+        self.update_temp_reading()
         self.logger.info("Successfully collected data...")
 
     def log_data_to_services(self):
@@ -116,15 +126,15 @@ class ColdLobMonitor(object):
             norm_level = tank["level_monitor"].target_offset() if level else None
             min_level = tank["level_monitor"].min_level if level else None
             level_alert = tank["level_monitor"].check_alert() if level else None
-            valve_thread = self.valve_manager.get_thread_by_tank_id(tank_id)
-            on_time = valve_thread.on_time if valve_thread else None
-            off_time = valve_thread.off_time if valve_thread else None
+            valve_thread = None # valve_thread = self.valve_manager.get_thread_by_tank_id(tank_id)
+            on_time = "on_time_here" # valve_thread.on_time if valve_thread else None
+            off_time = "off_time_here" # valve_thread.off_time if valve_thread else None
             self.logging_service.add_entry([
                 dt, ts, today.year, today.month, today.day, tank_id,
                 temp, flow, level, norm_level, on_time, off_time,
             ])
             if level_alert:
-                self.logging.info(level_alert)
+                self.logger.info(level_alert)
                 self.logging_service.notify_all(level_alert)
         self.logger.info("Done logging to services!!")
 
@@ -204,6 +214,7 @@ class ColdLobMonitor(object):
 
     def run(self):
         self.logger.info("Running Cold Lob Monitor")
+        self.reset_timer()
         while True:
             try:
                 if time.time() >= self.timer:
@@ -211,7 +222,8 @@ class ColdLobMonitor(object):
                     self.collect_data()
                     self.log_data_to_services()
                     if self.past_delay:
-                        self.update_valve_timings()
+                        pass
+                        # self.update_valve_timings()
                     else:
                         # otherwise, we want to update our delay timer
                         self.update_delay_bool()
