@@ -8,7 +8,7 @@ from ..utils.eventlogger import EventHandler
 import logging
 import os
 import json
-import time
+import time, sys
 from datetime import datetime
 
 class ColdLobMonitor(object):
@@ -105,7 +105,7 @@ class ColdLobMonitor(object):
     def collect_data(self):
         self.logger.info("Collecting data...")
         self.update_flow_reading()
-        self.uddate_level_reading()
+        self.update_level_reading()
         self.update_temp_reading()
         self.logger.info("Successfully collected data...")
 
