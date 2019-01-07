@@ -11,6 +11,14 @@ import time
 import logging
 
 class TemperatureMonitor(object):
+    """
+    An object to read temperature data from a specified
+    /sys/bus/w1/devices/<device_id> file
+
+    Arguments:
+        device_id: String
+        tank:      Integer
+    """
     def __init__(self, device_id, tank):
         self.logger = logging.getLogger(
             "project_lob.components.temperature_monitor")
@@ -24,12 +32,18 @@ class TemperatureMonitor(object):
         self.samples= []
 
     def get_average(self):
+        """
+        Average and return the current temperature samples
+        """
         avg = sum(self.samples) / len(self.samples)
         self.logger.info("Average temp is {}, for tank: {}".format(
             avg, self.tank))
         return avg
 
     def read_temp_raw(self):
+        """
+        Read the device file and return its contents
+        """
         f = open(self.device_file, 'r')
         lines = f.readlines()
         f.close()
@@ -39,11 +53,19 @@ class TemperatureMonitor(object):
         return self.samples[-1]
 
     def update_samples(self, sample):
+        """
+        Add a sample to the list of samples. Restrict the list to the last
+        10 entries
+        """
         self.logger.info("Updating Samples with temp: {}".format(sample))
         self.samples.append(sample)
         self.samples = self.samples[-10:]
 
     def read_temp(self):
+        """
+        Gather and convert the data from the device file. Update the
+        list of samples and return the temp in C and F
+        """
         self.logger.info("Reading temp for tank: {}".format(self.tank))
         lines = self.read_temp_raw()
         while lines[0].strip()[-3:] != 'YES':
