@@ -111,7 +111,7 @@ class ColdLobMonitor(object):
                 in tank else None)
             flow = (tank["flow_monitor"].last_sample() if "flow_monitor"
                 in tank else None)
-            level = (tank["level_monitor"].last_sample() if "level_monitor"I
+            level = (tank["level_monitor"].last_sample() if "level_monitor"
                 in tank else None)
             norm_level = tank["level_monitor"].target_offset() if level else None
             min_level = tank["level_monitor"].min_level if level else None
@@ -157,8 +157,8 @@ class ColdLobMonitor(object):
             if level_offset > 0.1 and level_trend > 0:
                 # the level is high and its trending up
                 # we want to slow down the flow into the tank
-                tank["level_lock"] = level
-                tank["target_flow"] = 
+                # tank["level_lock"] = level
+                # tank["target_flow"] =
                 pass
             elif level_offset < -0.1 and level_trend < 0:
                 # the level is low and its trending down
@@ -171,6 +171,7 @@ class ColdLobMonitor(object):
         else:
             if abs(level - tank["level_lock"]) >= (tank["level_lock"] * 0.1):
                 # the tank is draining/filling quickly so we should update the flow now
+                pass
             elif abs(flow - tank["target_flow"]) <= (tank["target_flow"] * 0.05):
                 # the flow is close to the target flow, we should reset the locks/targets
                 # and redo this method
