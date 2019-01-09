@@ -17,7 +17,8 @@ class LoggingService(object):
         self.gmail_pwd = gmail_pwd
         self.phone_numbers = phone_numbers
         self.error_count = 0
-        self.connect_to_gmail_server()
+        if self.gmail_email and self.gmail_pwd:
+            self.connect_to_gmail_server()
         self.scope = [
             "https://spreadsheets.google.com/feeds",
             "https://www.googleapis.com/auth/drive"
@@ -32,6 +33,10 @@ class LoggingService(object):
     def set_last_entry(self, ts):
         self.logger.info("Setting last entry timestamp: {}".format(ts))
         self.last_entry_timestamp = ts
+
+    def all_entries(self):
+        self.check_connection()
+        return self.sheet.get_all_records()
 
     def connect(self):
         self.logger.info("Connecting to google spreadsheets")
