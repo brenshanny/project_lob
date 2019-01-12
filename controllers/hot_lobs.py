@@ -47,7 +47,7 @@ class HotLobMonitor(object):
 
     def update_spreadsheet(self, tank, temp):
         pacific = pytz.timezone('America/Los_Angeles')
-        today = pacific.localize(datetime.datetime.now())
+        today = pacific.localize(datetime.now())
         self.logger.info(
             "Updating spreadsheet for tank {}, with temp {}".format(
                 tank, temp))
@@ -77,7 +77,7 @@ class HotLobMonitor(object):
 
     def run(self):
         self.logger.info("Running Hot Lob Monitor")
-        self.reset_timer()
+        self.timer = time.time()
         while True:
             try:
                 if time.time() >= self.timer:
