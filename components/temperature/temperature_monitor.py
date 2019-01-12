@@ -19,7 +19,7 @@ class TemperatureMonitor(object):
         self.device_id = device_id
         self.tank = tank
         # Find the correct folder with the device id
-        self.device_folder = glob.glob('/sys/bus/w1/devices/' + '28*')[0]
+        self.device_folder = glob.glob('/sys/bus/w1/devices/' + self.device_id)[0]
         self.device_file = self.device_folder + '/w1_slave'
         self.samples= []
 
