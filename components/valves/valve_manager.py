@@ -17,14 +17,17 @@ class ValveManager(object):
         ]
         self.toggle_phase = "off"
         self.valve_table = {}
+        self.threads = {}
         for controller in self.controllers:
             self.valve_table[controller.tank] = controller
 
     def update_valve_timings(self, timings):
         self.logger.info("Updating valve timings")
+        self.valve_timings = timings
         for timing in timings:
-            thread = self.threads[timing["tank"]]
-            thread.update_timing(timing["on"], timing["off"])
+            if timing["tank"] in self.threads:
+                thread = self.threads[timing["tank"]]
+                thread.update_timing(timing["on"], timing["off"])
 
     def shutdown_threads(self):
         self.logger.info("Shutting down threads")
@@ -42,6 +45,7 @@ class ValveManager(object):
             self.threads[tank] = ValveThread(
                 self.valve_table[tank], timing["on"], timing["off"]
             )
+            self.threads[tank].start()
 
     def get_thread_by_tank_id(self, tank):
         if tank in self.threads:

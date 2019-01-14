@@ -43,5 +43,5 @@ class ValveThread(threading.Thread):
     def run(self):
         self.logger.info("Running Valve Thread for controler: {}".format(
             self.valve_controller.tank))
-        while not self.shutdown:
+        while not self.shutdown_needed:
             getattr(self, self.phase)()

@@ -1,5 +1,5 @@
 from ..components.temperature.temperature_manager import TemperatureManager
-from ..components.valves.vales_manager import ValveManager
+from ..components.valves.valve_manager import ValveManager
 from ..components.water_flow.water_flow_manager import WaterFlowManager
 from ..components.water_level.water_level_manager import WaterLevelManager
 
@@ -34,7 +34,7 @@ if __name__ == "__main__":
     tempManager = TemperatureManager(temperature_codes)
     valveManager = ValveManager(valve_pins)
     flowManager = WaterFlowManager(water_flow_pins, 5)
-    levelManager = WaterLevelManager(water_level_pins, 1.1., .9)
+    levelManager = WaterLevelManager(water_level_pins, 1.1, .9)
     while True:
         print("----------------------")
         levelManager.print_levels()
