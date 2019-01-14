@@ -106,6 +106,8 @@ class LoggingService(object):
                 cells[i].value = attrs[i]
             self.logger.info("Adding entry to row: {}".format(current_row))
             self.sheet.update_cells(cells)
+            # reset error count on successful update
+            self.error_count = 0
         except:
             e = sys.exc_info()[0]
             self.logger.error("Error occured when adding entry: {}".format(str(e)))
@@ -140,12 +142,19 @@ class LoggingService(object):
                 msg = "Unknown error"
                 code = "Unknown Code"
                 self.connect()
+            premessage = "Hot Lob Error!"
+            if self.error_count >= 5:
+                premessage = "Reached Hot Lob Error Limit! Shutting Down..."
             self.send_multiple_texts(
-                "Hot Lob Error!\nerr -> {}\nmsg -> {}\ncode -> {}".format(
+                "{}\nerr -> {}\nmsg -> {}\ncode -> {}".format(
+                    premessage,
                     e,
                     msg.replace(":", ""),
                     code
                 ),
                 self.phone_numbers
             )
-            self.error_count += 1
+            if self.error_count >= 5:
+                raise e
+            else:
+                self.error_count += 1
