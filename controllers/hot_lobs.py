@@ -4,6 +4,7 @@ import sys
 import time
 from datetime import datetime
 import logging
+import pytz
 
 from ..components.temperature.temperature_manager import TemperatureManager
 from ..components.logging_service import LoggingService
@@ -45,7 +46,8 @@ class HotLobMonitor(object):
         self.interval = val
 
     def update_spreadsheet(self, tank, temp):
-        today = datetime.today()
+        pacific = pytz.timezone('America/Los_Angeles')
+        today = pacific.localize(datetime.now())
         self.logger.info(
             "Updating spreadsheet for tank {}, with temp {}".format(
                 tank, temp))
@@ -75,7 +77,7 @@ class HotLobMonitor(object):
 
     def run(self):
         self.logger.info("Running Hot Lob Monitor")
-        self.reset_timer()
+        self.timer = time.time()
         while True:
             try:
                 if time.time() >= self.timer:
