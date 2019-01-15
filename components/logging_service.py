@@ -4,6 +4,7 @@ import smtplib
 import time
 import requests
 import logging
+import sys
 
 class LoggingService(object):
     def __init__(self, sheet_key, cred_file,
@@ -105,9 +106,12 @@ class LoggingService(object):
                 cells[i].value = attrs[i]
             self.logger.info("Adding entry to row: {}".format(current_row))
             self.sheet.update_cells(cells)
-        except (gspread.exceptions.APIError, requests.exceptions.ConnectionError) as e:
-            self.logger.error("Error occured when adding entry: {}".format(e))
-            if type(e) == gspread.exceptions.APIError:
+            # reset error count on successful update
+            self.error_count = 0
+        except:
+            e = sys.exc_info()[0]
+            self.logger.error("Error occured when adding entry: {}".format(str(e)))
+            if e == gspread.exceptions.APIError:
                 resp = requests.models.Response()
                 resp._content = e.response.text.encode('latin-1')
                 err = resp.json()
@@ -138,11 +142,14 @@ class LoggingService(object):
                 msg = "Unknown error"
                 code = "Unknown Code"
                 self.connect()
-            self.send_multiple_texts(
-                "Hot Lob Error! msg -> {} code -> {}".format(
-                    msg.replace(":", ""),
-                    code
-                ),
-                self.phone_numbers
-            )
+            if self.error_count >= 5:
+                self.send_multiple_texts(
+                    "Reached Hot Lob error limit! Shutting Down...\nerr -> {}\nmsg -> {}\ncode -> {}".format(
+                        e,
+                        msg.replace(":", ""),
+                        code
+                    ),
+                    self.phone_numbers
+                )
+                raise e
             self.error_count += 1
