@@ -142,19 +142,15 @@ class LoggingService(object):
                 msg = "Unknown error"
                 code = "Unknown Code"
                 self.connect()
-            premessage = "Hot Lob Error!"
             if self.error_count >= 5:
-                premessage = "Reached Hot Lob Error Limit! Shutting Down..."
-            self.send_multiple_texts(
-                "{}\nerr -> {}\nmsg -> {}\ncode -> {}".format(
-                    premessage,
-                    e,
-                    msg.replace(":", ""),
-                    code
-                ),
-                self.phone_numbers
-            )
-            if self.error_count >= 5:
+                self.send_multiple_texts(
+                    "Reached Hot Lob error limit! Shutting Down...\nerr -> {}\nmsg -> {}\ncode -> {}".format(
+                        premessage,
+                        e,
+                        msg.replace(":", ""),
+                        code
+                    ),
+                    self.phone_numbers
+                )
                 raise e
-            else:
-                self.error_count += 1
+            self.error_count += 1
