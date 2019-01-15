@@ -145,7 +145,6 @@ class LoggingService(object):
             if self.error_count >= 5:
                 self.send_multiple_texts(
                     "Reached Hot Lob error limit! Shutting Down...\nerr -> {}\nmsg -> {}\ncode -> {}".format(
-                        premessage,
                         e,
                         msg.replace(":", ""),
                         code
