@@ -24,7 +24,7 @@ class ValveManager(object):
         self.logger.info("Updating valve timings")
         for timing in timings:
             thread = self.threads[timing["tank"]]
-            thread.update_timing(timing["on"], timing["off"])
+            thread.update_timing(timing["index"])
 
     def shutdown_threads(self):
         self.logger.info("Shutting down threads")

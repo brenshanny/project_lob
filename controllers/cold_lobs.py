@@ -58,10 +58,10 @@ class ColdLobMonitor(object):
 
     def create_tank_lookup_dict(self):
         self.tank_table = {
-            "4": {"level_lock": None, "target_flow": None },
-            "5": {"level_lock": None, "target_flow": None },
-            "6": {"level_lock": None, "target_flow": None },
-            "7": {"level_lock": None, "target_flow": None }
+            "4": {"last_offset": None, "flow_rate_warning": False},
+            "5": {"last_offset": None, "flow_rate_warning": False},
+            "6": {"last_offset": None, "flow_rate_warning": False},
+            "7": {"last_offset": None, "flow_rate_warning": False}
         }
         for monitor in self.level_manager.monitors:
             self.tank_table[str(monitor.tank)]["level_monitor"] = monitor
@@ -138,79 +138,41 @@ class ColdLobMonitor(object):
                 self.logging_service.notify_all(level_alert)
         self.logger.info("Done logging to services!!")
 
-    def determine_level_trends(self):
-        # likely some linear regression here
-        # but is it needed?
-          # i guess it would be nice to adjust the magnitude of a change
-          # to flow rate based on the rate of level change
-        pass
-
-    def update_valve_timings(self):
-        for tank_id in list(self.tank_table.keys()):
-            if tank_id is not "7":
-                self.update_downstream_tank(tank_id)
-            else:
-                self.update_header_tank()
-
-    def update_header_tank(self, tank_id):
-        pass
-
     def update_downstream_tank(self, tank_id):
-        self.logger.info("Updating flow rate for tank: {}".format(tank_id))
+        self.logger.info("Assessing tank level: {}".format(tank_id))
         tank = self.tank_table[tank_id]
+        # read current rates
         level = tank["level_monitor"].get_average()
-        flow = tank["flow_monitor"].get_average()
-        level_offset = tank["level_monitor"].target_offset()
-        level_trend = tank["level_monitor"].level_trend()
-        flow_offset = tank["flow_monitor"].target_offset()
-        if not tank["level_lock"]:
-            if level_offset > 0.1 and level_trend > 0:
-                # the level is high and its trending up
-                # we want to slow down the flow into the tank
-                # tank["level_lock"] = level
-                # tank["target_flow"] =
-                pass
-            elif level_offset < -0.1 and level_trend < 0:
-                # the level is low and its trending down
-                # we want to speed up the flow into the tank
-                tank["level_lock"] = level
-                pass
+        flow_rate = tank["flow_monitor"].flow_index
+        offset = tank["level_monitor"].raw_offset()
+        # pull in last readings
+        last_offset = tank["last_offset"]
+        flow_warning = tank["flow_rate_warning"]
+        # we'll need to populate the initial readings
+        if last_offset is None:
+            tank["last_offset"] = offset
+            return
+        if abs(last_offset) < abs(offset):
+            # the error is increasing, we'll want to modify the flow rate
+            if offset >= 0:
+                if flow_rate == 0:
+                    if flow_warning:
+                        # theres an issue, we're trying to slow down too much
+                    else:
+                        tank["flow_rate_warning"] = True
+                else:
+                    # slow down
+                    tank["valve"].slow_down()
             else:
-                # the tank is in the sweet spot (-0.1 <-> 0.1)
-                pass
-        else:
-            if abs(level - tank["level_lock"]) >= (tank["level_lock"] * 0.1):
-                # the tank is draining/filling quickly so we should update the flow now
-                pass
-            elif abs(flow - tank["target_flow"]) <= (tank["target_flow"] * 0.05):
-                # the flow is close to the target flow, we should reset the locks/targets
-                # and redo this method
-                tank["level_lock"] = None
-                tank["target_flow"] = None
-                self.update_downstream_tank(tank_id)
-            else:
-                # the level is not moving too much, but we haven't reached our target flow
-                # so we shouldn't do anything just yet
-                pass
-
-            # take a measurement
-            # if the past level/flow rate targets aren't set
-            # -> then start fresh
-                # determine the flow necessary (likely a small % up or down from current flow rate)
-                # retain the level at this moment
-            # otherwise
-            # if the flow rate is within 5% of the target rate and the level isn't 10% +/- the last level
-                # then check the level and its relation to the last level
-                # if not moving in the correct direction
-                    # update the flow target,
-            # retain the level at this moment
-            # on the next iteration
-
-
-        pass
-
-    def update_valve_timings(self):
-        pass
+                if flow_rate == 9:
+                    if flow_warning:
+                        # theres an issue, we're trying to speed up too much
+                    else:
+                        tank["flow_rate_warning"] = True
+                else:
+                    # speed up
+                    tank["valve"].speed_up()
+        tank["last_offset"] = offset
 
     def run(self):
         self.logger.info("Running Cold Lob Monitor")
