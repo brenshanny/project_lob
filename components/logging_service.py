@@ -78,6 +78,14 @@ class LoggingService(object):
             message
         )
 
+    def get_last_entry(self):
+        self.check_connection()
+        if not self.sheet:
+            raise Exception("Cannot get last entry without a sheet."
+            "Please run the connect function to setup the worksheet"
+        )
+        return self.sheet.row_values(len(self.sheet.col_values))
+
     def get_current_row(self):
         self.check_connection()
         if not self.sheet:
