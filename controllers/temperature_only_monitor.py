@@ -12,12 +12,12 @@ from ..utils.eventlogger import EventHandler
 
 class TemperatureOnlyMonitor(object):
     def __init__(self, config_path, monitor):
-        if monitor != "hot_lob" || monitor != "cold_lob":
-            print("Desired monitor must be either 'hot_lob' or 'cold_lob'")
+        if monitor != "hot_lob" and  monitor != "cold_lob" and monitor != "cold_lob_temp":
+            print("Desired monitor must be either 'hot_lob', 'cold_lob' or 'cold_lob_temp'")
             sys.exit()
         self.monitor = monitor
         self.logger = logging.getLogger("project_lob.{}".format(self.formatted_monitor_name))
-        self.logger.info("Initializing {}".format(self.formatted_montior_name))
+        self.logger.info("Initializing {}".format(self.formatted_monitor_name))
         with open(config_path) as config_file:
             self.logger.info("Loading {} config @ {}".format(self.formatted_monitor_name, config_path))
             self.config = json.load(config_file)[self.monitor]

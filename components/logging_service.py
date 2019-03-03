@@ -44,7 +44,7 @@ class LoggingService(object):
         self.logger.info("Connecting to google spreadsheets")
         self.connection = gspread.authorize(self.credentials)
         self.worksheet = self.connection.open_by_key(self.sh_key)
-        self.sheet = self.worksheet(self.sheet_name)
+        self.sheet = self.worksheet.worksheet(self.sheet_name)
 
     def connect_to_gmail_server(self):
         self.logger.info("Connecting to email server")

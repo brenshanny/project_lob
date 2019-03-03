@@ -67,7 +67,7 @@
     "event_logger_filename": "COLD_LOB_EVENTLOGGER_FILENAME"
   },
   "hot_lob": {
-    "temperature: {
+    "temperature": {
       "probes": [
         { "device_id": "28-020292456264", "tank": 1 },
         { "device_id": "28-020f92457fe2", "tank": 2 },
