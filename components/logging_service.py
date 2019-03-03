@@ -8,11 +8,12 @@ import sys
 
 class LoggingService(object):
     def __init__(self, sheet_key, cred_file,
-            gmail_email, gmail_pwd, phone_numbers):
+            gmail_email, gmail_pwd, sheet_name, phone_numbers):
         self.logger = logging.getLogger(
             "project_lob.components.logging_service")
         self.logger.info("Initializing Logging Service")
         self.sh_key = sheet_key
+        self.sheet_name = sheet_name
         self.cred_file = cred_file
         self.gmail_email = gmail_email
         self.gmail_pwd = gmail_pwd
@@ -43,7 +44,7 @@ class LoggingService(object):
         self.logger.info("Connecting to google spreadsheets")
         self.connection = gspread.authorize(self.credentials)
         self.worksheet = self.connection.open_by_key(self.sh_key)
-        self.sheet = self.worksheet.sheet1
+        self.sheet = self.worksheet(self.sheet_name)
 
     def connect_to_gmail_server(self):
         self.logger.info("Connecting to email server")

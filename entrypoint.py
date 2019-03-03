@@ -3,7 +3,7 @@ import logging
 import argparse
 import sys
 
-from .controllers.hot_lobs import HotLobMonitor
+from .controllers.temperature_only_monitor import TemperatureOnlyMonitor
 from .controllers.cold_lobs import ColdLobMonitor
 
 if __name__ == "__main__":
@@ -20,8 +20,10 @@ if __name__ == "__main__":
                          action="store_true")
     parser.add_argument("-cm", "--cold-monitor", help="Run the cold lob monitor",
                          action="store_true")
+    parser.add_argument("-cmt", "--cold-monitor-temp", help="Run the cold monitor with temperature readings only",
+                         action="store_true")
     args = parser.parse_args()
-    if not args.hot_monitor and not args.cold_monitor:
+    if not args.hot_monitor and not args.cold_monitor and not args.cold_monitor_temp:
         print("Must specify a program to run, hot monitor or cold"
               " controller!")
         sys.exit()
@@ -47,8 +49,11 @@ if __name__ == "__main__":
     # Run monitor
     if args.hot_monitor:
         logger.info("Creating hot lob monitor!")
-        monitor = HotLobMonitor(config_path)
+        monitor = TemperatureOnlyMonitor(config_path, "hot_lob")
     if args.cold_monitor:
         logger.info("Creating cold lob monitor!")
         monitor = ColdLobMonitor(config_path)
+    if args.cold_monitor_temp:
+        logger.info("Creating cold lob temp only monitor!")
+        monitor = TemperatureOnlyMonitor(config_path, "cold_lob_temp")
     monitor.run()

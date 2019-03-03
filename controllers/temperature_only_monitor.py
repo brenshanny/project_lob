@@ -10,20 +10,24 @@ from ..components.temperature.temperature_manager import TemperatureManager
 from ..components.logging_service import LoggingService
 from ..utils.eventlogger import EventHandler
 
-class HotLobMonitor(object):
-    def __init__(self, config_path):
-        self.logger = logging.getLogger('project_lob.hot_lob_monitor')
-        self.logger.info("Initializing Hot Lob Monitor")
+class TemperatureOnlyMonitor(object):
+    def __init__(self, config_path, monitor):
+        if monitor != "hot_lob" || monitor != "cold_lob":
+            print("Desired monitor must be either 'hot_lob' or 'cold_lob'")
+            sys.exit()
+        self.monitor = monitor
+        self.logger = logging.getLogger("project_lob.{}".format(self.formatted_monitor_name))
+        self.logger.info("Initializing {}".format(self.formatted_montior_name))
         with open(config_path) as config_file:
-            self.logger.info("Loading Hot Lob config @ {}".format(config_path))
-            self.config = json.load(config_file)["hot_lob"]
+            self.logger.info("Loading {} config @ {}".format(self.formatted_monitor_name, config_path))
+            self.config = json.load(config_file)[self.monitor]
         self.event_logger = EventHandler(
             os.environ[self.config['event_logger_filename']],
-            name="hot_lob_data")
+            name="{}_data".format(self.monitor))
         self.set_interval(self.config['read_interval'])
         self.logger.info("Initializing Temperature Manger")
         self.temperature_manager = TemperatureManager(
-            self.config['temperature_probes']
+            self.config['temperature']['probes']
         )
         self.logger.info("Loading phone numbers")
         with open(os.environ[self.config["phone_numbers"]]) as phones:
@@ -34,8 +38,12 @@ class HotLobMonitor(object):
             os.environ[self.config['cred_file']],
             os.environ[self.config['gmail_email']],
             os.environ[self.config['gmail_pwd']],
+            self.config['sheet_name'],
             self.phone_numbers
         )
+
+    def formatted_monitor_name(self):
+        return "{}_monitor".format(self.monitor)
 
     def reset_timer(self):
         self.logger.info("Resetting timer!")
@@ -76,7 +84,7 @@ class HotLobMonitor(object):
             self.update_spreadsheet(d['tank'], d['temp'])
 
     def run(self):
-        self.logger.info("Running Hot Lob Monitor")
+        self.logger.info("Running {} Monitor".format(self.monitor))
         self.timer = time.time()
         while True:
             try:
